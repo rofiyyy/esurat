@@ -1,0 +1,2960 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#121212" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>ArsipFlow — Aplikasi Surat Masuk &amp; Surat Keluar</title>
+
+  <!-- PWA Manifest Embedded via Data URI (Single-File PWA) -->
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22ArsipFlow%20-%20Surat%20Masuk%20%26%20Keluar%22%2C%22short_name%22%3A%22ArsipFlow%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23F4F6F9%22%2C%22theme_color%22%3A%22%23121212%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%2520viewBox%3D%270%25200%2520100%2520100%27%253E%253Crect%2520width%3D%27100%27%2520height%3D%27100%27%2520rx%3D%2724%27%2520fill%3D%27%2523D2FA3E%27%2F%253E%253Cpath%2520d%3D%27M26%252034h48v32H26z%27%2520fill%3D%27none%27%2520stroke%3D%27%2523121212%27%2520stroke-width%3D%278%27%2520stroke-linejoin%3D%27round%27%2F%253E%253Cpath%2520d%3D%27M26%252036l24%252018%252024-18%27%2520fill%3D%27none%27%2520stroke%3D%27%2523121212%27%2520stroke-width%3D%278%27%2520stroke-linecap%3D%27round%27%2520stroke-linejoin%3D%27round%27%2F%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D" />
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#F4F6F9',
+            subtle: '#F6F8FB',
+            ink: '#121212',
+            limebrand: '#D2FA3E',
+            royal: '#2F7CF6',
+            softblue: '#88B4FA',
+            danger: '#E25C5C',
+          },
+          boxShadow: {
+            bento: '0 8px 30px rgba(15, 23, 42, 0.04)',
+            float: '0 14px 36px rgba(15, 23, 42, 0.09)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    /* =========================================================================
+       FULL-PAGE OVERLAY (MENUTUPI ELEMEN BAWAAN BLOGGER TANPA EDIT TEMPLATE)
+       ========================================================================= */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #F4F6F9;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      color: #111827;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #arsipflow-root {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background-color: #F4F6F9;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbar Minimalis */
+    #arsipflow-root::-webkit-scrollbar,
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    #arsipflow-root::-webkit-scrollbar-track,
+    .custom-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #arsipflow-root::-webkit-scrollbar-thumb,
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #D1D5DB;
+      border-radius: 9999px;
+    }
+
+    /* Efek Glassmorphism Halus */
+    .glass-surface {
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    /* Tekstur Garis Diagonal pada Batang Grafik Kapsul */
+    .bar-stripe-soft {
+      background-color: #88B4FA;
+      background-image: repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.22) 0px,
+        rgba(255, 255, 255, 0.22) 3px,
+        transparent 3px,
+        transparent 9px
+      );
+    }
+    .bar-stripe-peak {
+      background-color: #2F7CF6;
+      background-image: repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.16) 0px,
+        rgba(255, 255, 255, 0.16) 3px,
+        transparent 3px,
+        transparent 9px
+      );
+    }
+
+    /* Responsif Navigasi: Desktop Sidebar vs Mobile Bottom Bar (Media Queries Wajib) */
+    .desktop-sidebar-rail {
+      display: none;
+    }
+    .mobile-bottom-nav {
+      display: flex;
+    }
+    .main-shell-padding {
+      padding-bottom: 104px;
+    }
+
+    @media (min-width: 1024px) {
+      .desktop-sidebar-rail {
+        display: flex;
+      }
+      .mobile-bottom-nav {
+        display: none !important;
+      }
+      .main-shell-padding {
+        padding-bottom: 32px;
+      }
+    }
+
+    /* Animasi Halus */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-up {
+      animation: fadeSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Gaya Cetak Resmi (Lembar Disposisi & Rekap) */
+    #print-area {
+      display: none;
+    }
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #arsipflow-root {
+        position: static !important;
+        overflow: visible !important;
+        background: #FFFFFF !important;
+      }
+      #app-shell, #login-screen, #modal-container, #toast-container {
+        display: none !important;
+      }
+      #print-area, #print-area * {
+        display: block !important;
+        visibility: visible !important;
+      }
+      #print-area table {
+        display: table !important;
+      }
+      #print-area thead {
+        display: table-header-group !important;
+      }
+      #print-area tbody {
+        display: table-row-group !important;
+      }
+      #print-area tr {
+        display: table-row !important;
+      }
+      #print-area th, #print-area td {
+        display: table-cell !important;
+      }
+      #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+        background: #FFFFFF;
+        color: #111827;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="arsipflow-root">
+    <!-- ==================== HALAMAN LOGIN HYBRID ==================== -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 sm:p-6">
+      <div class="w-full max-w-md animate-fade-up">
+        <!-- Banner Mode Preview (Hanya Dirender Saat IS_PREVIEW === true) -->
+        <div id="login-preview-banner" class="hidden mb-4 rounded-2xl bg-[#121212] text-white px-4 py-3 text-xs flex items-start gap-3 shadow-bento">
+          <div class="w-7 h-7 rounded-xl bg-[#D2FA3E] text-[#121212] flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="flask-conical" class="w-4 h-4"></i>
+          </div>
+          <div class="leading-relaxed">
+            <p class="font-semibold text-[#D2FA3E]">Mode Preview / Uji Coba Aktif</p>
+            <p class="text-gray-300 mt-0.5">Data berjalan di memori sementara tanpa koneksi Firebase.</p>
+          </div>
+        </div>
+
+        <!-- Kartu Login -->
+        <div class="bg-white rounded-[28px] shadow-bento p-7 sm:p-8 border border-gray-100">
+          <!-- Brand Header -->
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-[#D2FA3E] flex items-center justify-center shadow-sm">
+                <i data-lucide="mail-check" class="w-6 h-6 text-[#121212]"></i>
+              </div>
+              <div>
+                <h1 class="text-xl font-bold tracking-tight text-gray-900">ArsipFlow</h1>
+                <p class="text-xs text-gray-400 font-medium">Sistem Surat Masuk &amp; Keluar</p>
+              </div>
+            </div>
+            <span id="login-mode-pill" class="hidden text-[11px] font-semibold px-3 py-1 rounded-full bg-[#D2FA3E] text-[#121212]">Preview</span>
+          </div>
+
+          <!-- Saklar Metode Login Hybrid -->
+          <div class="bg-[#F6F8FB] p-1.5 rounded-full grid grid-cols-2 gap-1 mb-6">
+            <button type="button" id="tab-login-admin" class="py-2.5 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 bg-[#121212] text-white shadow-sm">
+              Admin (Email)
+            </button>
+            <button type="button" id="tab-login-user" class="py-2.5 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 text-gray-500 hover:text-gray-900">
+              Staf / Pimpinan
+            </button>
+          </div>
+
+          <!-- Form Login -->
+          <form id="login-form" class="space-y-4">
+            <div id="field-login-identifier">
+              <label for="login-input-id" id="label-login-id" class="block text-xs font-semibold text-gray-600 mb-1.5">Email Admin</label>
+              <div class="relative">
+                <i data-lucide="mail" id="icon-login-id" class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                <input id="login-input-id" type="email" required autocomplete="username" placeholder="admin@instansi.go.id"
+                  class="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#F6F8FB] border border-transparent focus:border-gray-900 focus:bg-white text-sm outline-none transition-all" />
+              </div>
+            </div>
+
+            <div>
+              <label for="login-input-password" class="block text-xs font-semibold text-gray-600 mb-1.5">Kata Sandi</label>
+              <div class="relative">
+                <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                <input id="login-input-password" type="password" required autocomplete="current-password" placeholder="Masukkan kata sandi"
+                  class="w-full pl-11 pr-11 py-3 rounded-2xl bg-[#F6F8FB] border border-transparent focus:border-gray-900 focus:bg-white text-sm outline-none transition-all" />
+                <button type="button" id="btn-toggle-pass" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Error Message Box -->
+            <div id="login-error" class="hidden rounded-2xl bg-rose-50 border border-rose-200 text-[#E25C5C] text-xs font-medium px-4 py-3"></div>
+
+            <button type="submit" id="btn-login-submit"
+              class="w-full py-3.5 rounded-full bg-[#121212] hover:bg-neutral-800 text-white font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:scale-[1.01]">
+              <span>Masuk ke Aplikasi</span>
+              <i data-lucide="arrow-right" class="w-4 h-4 text-[#D2FA3E]"></i>
+            </button>
+          </form>
+
+          <!-- Info Akun Demo (HANYA DIRENDER SAAT IS_PREVIEW === true) -->
+          <div id="login-demo-box" class="hidden mt-6 pt-5 border-t border-gray-100">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-2.5">Akun Demo Cepat (Mode Preview)</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button type="button" id="btn-fill-demo-admin"
+                class="text-left p-3 rounded-2xl bg-[#F6F8FB] hover:bg-[#D2FA3E]/30 transition-all border border-transparent hover:border-[#D2FA3E]">
+                <div class="text-xs font-bold text-gray-900">Admin TU</div>
+                <div class="text-[11px] text-gray-500 truncate">admin@instansi.go.id</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">Pass: admin123</div>
+              </button>
+              <button type="button" id="btn-fill-demo-user"
+                class="text-left p-3 rounded-2xl bg-[#F6F8FB] hover:bg-blue-50 transition-all border border-transparent hover:border-blue-200">
+                <div class="text-xs font-bold text-gray-900">Staf / User</div>
+                <div class="text-[11px] text-gray-500 truncate">User: budi.staf</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">Pass: staf123</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SHELL APLIKASI UTAMA ==================== -->
+    <div id="app-shell" class="hidden min-h-screen max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 main-shell-padding">
+      <!-- Banner Preview Global (Hanya Tampil Jika IS_PREVIEW === true) -->
+      <div id="global-preview-bar" class="hidden mb-4 rounded-full bg-[#121212] text-white px-5 py-2 text-xs flex flex-wrap items-center justify-between gap-2 shadow-bento">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-[#D2FA3E] animate-pulse"></span>
+          <span class="font-semibold text-[#D2FA3E]">MODE PREVIEW</span>
+          <span class="text-gray-300 hidden sm:inline">— Data berjalan di memori lokal (dummy). Ubah <code class="text-white font-mono">IS_PREVIEW = false</code> saat deploy ke Firebase.</span>
+        </div>
+        <span class="text-[11px] text-gray-400">Zero Firestore Writes</span>
+      </div>
+
+      <!-- TOP FLOATING PILL NAVBAR -->
+      <header class="glass-surface rounded-full px-4 sm:px-6 py-3 shadow-bento flex items-center justify-between gap-3 sticky top-3 z-40">
+        <!-- Brand -->
+        <div class="flex items-center gap-2.5 shrink-0 cursor-pointer" data-nav="dashboard">
+          <div class="w-9 h-9 rounded-xl bg-[#D2FA3E] flex items-center justify-center">
+            <i data-lucide="mail-check" class="w-5 h-5 text-[#121212]"></i>
+          </div>
+          <span class="text-base sm:text-lg font-bold tracking-tight text-gray-900">ArsipFlow</span>
+        </div>
+
+        <!-- Top Menu Tabs (Desktop) -->
+        <nav id="top-nav-tabs" class="hidden lg:flex items-center gap-1.5"></nav>
+
+        <!-- Right Utility Controls -->
+        <div class="flex items-center gap-2 sm:gap-2.5">
+          <!-- Global Quick Search Button -->
+          <button type="button" id="btn-global-search" title="Cari Surat Cepat"
+            class="w-10 h-10 rounded-full bg-[#F6F8FB] hover:bg-gray-200/70 flex items-center justify-center text-gray-700 transition-colors">
+            <i data-lucide="search" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Notification Popover Trigger -->
+          <div class="relative">
+            <button type="button" id="btn-notif-trigger" title="Notifikasi Disposisi"
+              class="w-10 h-10 rounded-full bg-[#F6F8FB] hover:bg-gray-200/70 flex items-center justify-center text-gray-700 transition-colors relative">
+              <i data-lucide="bell" class="w-4 h-4"></i>
+              <span id="notif-dot" class="hidden w-2.5 h-2.5 rounded-full bg-[#E25C5C] border-2 border-white absolute top-2 right-2"></span>
+            </button>
+            <div id="notif-dropdown" class="hidden absolute right-0 mt-3 w-72 sm:w-80 bg-white rounded-3xl shadow-float border border-gray-100 p-4 z-50">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-bold text-gray-900">Disposisi Menunggu</h4>
+                <span id="notif-count-badge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#D2FA3E] text-[#121212]">0</span>
+              </div>
+              <div id="notif-list" class="space-y-2 max-h-60 overflow-y-auto custom-scroll"></div>
+            </div>
+          </div>
+
+          <!-- User Profile Chip -->
+          <div class="flex items-center gap-2.5 pl-1.5 pr-3 py-1 rounded-full bg-[#F6F8FB]">
+            <div id="header-avatar" class="w-8 h-8 rounded-full bg-[#121212] text-[#D2FA3E] font-bold text-xs flex items-center justify-center shrink-0">AD</div>
+            <div class="hidden sm:block leading-tight text-left">
+              <div id="header-user-name" class="text-xs font-bold text-gray-900 max-w-[120px] truncate">Pengguna</div>
+              <div id="header-user-role" class="text-[10px] font-medium text-gray-400">Admin</div>
+            </div>
+            <button type="button" id="btn-header-logout" title="Keluar" class="ml-1 text-gray-400 hover:text-[#E25C5C] transition-colors">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- GREETING & ACTION SUB-BAR -->
+      <div class="mt-6 mb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <button type="button" id="btn-back-dash" class="hidden w-9 h-9 rounded-full bg-white shadow-sm border border-gray-100 items-center justify-center text-gray-700 hover:bg-gray-50 transition-all">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          </button>
+          <div>
+            <h2 id="page-greeting" class="text-2xl sm:text-[26px] font-semibold tracking-tight text-gray-900">Halo, Admin</h2>
+            <p id="page-subtitle" class="text-xs text-gray-400 mt-0.5">Ringkasan persuratan &amp; disposisi instansi</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- Pill Rentang Tanggal -->
+          <div class="flex items-center gap-2 bg-white border border-gray-200/80 rounded-full px-3.5 py-2 text-xs text-gray-700 shadow-sm">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-500"></i>
+            <input type="month" id="global-month-filter" class="bg-transparent outline-none text-xs font-medium text-gray-700 cursor-pointer" title="Filter Bulan" />
+            <button type="button" id="btn-reset-month" class="hidden text-[10px] font-bold text-[#2F7CF6] hover:underline ml-1">Semua</button>
+          </div>
+
+          <!-- Tombol Aksi Cepat Dinamis -->
+          <button type="button" id="btn-primary-cta"
+            class="inline-flex items-center gap-2 bg-white hover:bg-[#121212] hover:text-white border border-gray-200/90 rounded-full px-4 py-2 text-xs font-semibold text-gray-800 shadow-sm transition-all duration-200">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span id="btn-primary-cta-label">Catat Surat Masuk</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- BODY LAYOUT: LEFT FLOATING SIDEBAR RAIL + MAIN CONTENT -->
+      <div class="flex items-start gap-5">
+        <!-- DESKTOP FIXED LEFT FLOATING PILL SIDEBAR RAIL -->
+        <aside class="desktop-sidebar-rail flex-col items-center justify-between w-[72px] shrink-0 bg-white rounded-full py-5 shadow-bento sticky top-24 min-h-[540px] border border-gray-100/80">
+          <div id="sidebar-nav-items" class="flex flex-col items-center gap-3"></div>
+          <div class="flex flex-col items-center gap-3 pt-4 border-t border-gray-100">
+            <button type="button" id="sidebar-btn-settings" data-nav="pengaturan" title="Master & Pengaturan"
+              class="sidebar-pill-btn w-11 h-11 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#F6F8FB] hover:text-gray-900 transition-all">
+              <i data-lucide="settings" class="w-5 h-5"></i>
+            </button>
+            <button type="button" id="sidebar-btn-logout" title="Keluar Aplikasi"
+              class="w-11 h-11 rounded-full flex items-center justify-center text-gray-500 hover:bg-rose-50 hover:text-[#E25C5C] transition-all">
+              <i data-lucide="log-out" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </aside>
+
+        <!-- MAIN DYNAMIC VIEWPORT -->
+        <main id="main-content" class="flex-1 min-w-0 animate-fade-up"></main>
+      </div>
+    </div>
+
+    <!-- ==================== MOBILE FLOATING BOTTOM NAVIGATION BAR ==================== -->
+    <nav id="mobile-bottom-nav" class="mobile-bottom-nav hidden fixed bottom-4 left-4 right-4 z-50 glass-surface rounded-full px-3 py-2 shadow-float items-center justify-around max-w-md mx-auto">
+    </nav>
+
+    <!-- ==================== MODAL & TOAST CONTAINERS ==================== -->
+    <div id="modal-container" class="hidden fixed inset-0 z-[100000] bg-neutral-950/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div id="modal-panel" class="bg-white rounded-[28px] shadow-float w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-fade-up border border-gray-100">
+        <!-- Diisi dinamis oleh JS -->
+      </div>
+    </div>
+
+    <div id="toast-container" class="fixed top-5 right-5 z-[100010] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ==================== AREA CETAK RESMI (PRINT ONLY) ==================== -->
+    <div id="print-area"></div>
+  </div>
+
+  <!-- =========================================================================
+       SCRIPT UTAMA APLIKASI (ES MODULE + STRICT DUAL-MODE + FIREBASE + PWA)
+       ========================================================================= -->
+  <script type="module">
+    // KONFIGURASI APLIKASI
+    const IS_PREVIEW = true; // Ubah menjadi false SAAT DEPLOY / PUBLISH agar terhubung murni ke Firebase tanpa data dummy
+
+    // PASTE FIREBASE CONFIG ANDA DI SINI
+    const firebaseConfig = {
+      apiKey: "API_KEY_ANDA",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      projectId: "PROJECT_ID",
+      storageBucket: "PROJECT_ID.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+
+    // =========================================================================
+    // 1. REGISTRASI PWA SERVICE WORKER SECARA DINAMIS (BLOB 1-FILE)
+    // =========================================================================
+    (function registerDynamicServiceWorker() {
+      try {
+        if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+          const swCode = `
+            const CACHE_NAME = 'arsipflow-pwa-v1';
+            self.addEventListener('install', (e) => {
+              self.skipWaiting();
+            });
+            self.addEventListener('activate', (e) => {
+              e.waitUntil(clients.claim());
+            });
+            self.addEventListener('fetch', (e) => {
+              if (e.request.method !== 'GET') return;
+              e.respondWith(
+                fetch(e.request).catch(() => caches.match(e.request))
+              );
+            });
+          `;
+          const blob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(blob);
+          navigator.serviceWorker.register(swUrl).catch(() => {});
+        }
+      } catch (_) {
+        // Diabaikan dengan aman pada lingkungan preview terisolasi
+      }
+    })();
+
+    // =========================================================================
+    // 2. STATE APLIKASI & DATA DUMMY TERKONTROL (STRICT DUAL-MODE)
+    // =========================================================================
+    let fb = null; // Referensi SDK Firebase (Hanya diinisialisasi jika IS_PREVIEW === false)
+    let unsubscribers = []; // Listener realtime Firestore
+
+    const state = {
+      loginMode: 'admin', // 'admin' | 'user'
+      currentUser: null,  // { uid/id, nama, role ('Admin'|'Staf'|'Pimpinan'), jabatan, unit_kerja, email/username }
+      activeMenu: 'dashboard', // 'dashboard' | 'surat_masuk' | 'surat_keluar' | 'disposisi' | 'pengaturan'
+      settingsTab: 'users',    // 'users' | 'klasifikasi' | 'instansi'
+      chartMode: 'monthly',    // 'monthly' | 'annual'
+      globalMonth: '',         // 'YYYY-MM' atau ''
+      dashboardTableFilter: 'all', // 'all' | 'masuk' | 'keluar'
+      filters: {
+        masukSearch: '',
+        masukSifat: 'Semua',
+        masukStatus: 'Semua',
+        keluarSearch: '',
+        keluarSifat: 'Semua',
+        keluarStatus: 'Semua',
+        disposisiStatus: 'Semua',
+      },
+      // Data koleksi in-memory (kosong di mode produksi hingga dimuat dari Firestore)
+      surat_masuk: [],
+      surat_keluar: [],
+      disposisi: [],
+      users: [],
+      klasifikasi: [],
+      instansi: {
+        nama_instansi: 'Instansi Pemerintahan / Korporasi',
+        alamat: 'Belum diatur — Silakan atur pada menu Pengaturan',
+        prefix_nomor_keluar: 'INST'
+      }
+    };
+
+    /**
+     * Memuat data dummy HANYA ketika IS_PREVIEW === true (maksimal 2 data per koleksi krusial).
+     * Tidak pernah dieksekusi maupun dikirim ke Firestore saat IS_PREVIEW === false.
+     */
+    function loadPreviewDummyData() {
+      if (!IS_PREVIEW) return;
+      const nowYear = new Date().getFullYear();
+      const nowMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+      const prevMonth = String(Math.max(1, new Date().getMonth())).padStart(2, '0');
+
+      state.instansi = {
+        nama_instansi: 'Dinas Komunikasi & Tata Usaha Digital',
+        alamat: 'Jl. Merdeka Selatan No. 18, Jakarta Pusat 10110',
+        prefix_nomor_keluar: 'DKTUD'
+      };
+
+      state.klasifikasi = [
+        { id: 'k1', kode: '005', nama: 'Undangan Resmi', keterangan: 'Surat undangan rapat koordinasi & acara dinas' },
+        { id: 'k2', kode: '800', nama: 'Kepegawaian & Umum', keterangan: 'Administrasi SDM, penugasan, dan korespondensi umum' }
+      ];
+
+      state.users = [
+        {
+          id: 'u1',
+          username: 'budi.staf',
+          password: 'staf123',
+          nama_lengkap: 'Budi Santoso',
+          jabatan: 'Analis Tata Usaha',
+          unit_kerja: 'Subbag Umum',
+          role: 'Staf',
+          status_aktif: true
+        },
+        {
+          id: 'u2',
+          username: 'siti.kabid',
+          password: 'pimpinan123',
+          nama_lengkap: 'Siti Rahmawati',
+          jabatan: 'Kepala Bidang Arsip',
+          unit_kerja: 'Bidang Persuratan',
+          role: 'Pimpinan',
+          status_aktif: true
+        }
+      ];
+
+      state.surat_masuk = [
+        {
+          id: 'sm1',
+          nomor_agenda: 'AGD-001',
+          nomor_surat: '005/142/SETDA/' + nowYear,
+          tanggal_surat: `${nowYear}-${nowMonth}-04`,
+          tanggal_terima: `${nowYear}-${nowMonth}-05`,
+          pengirim: 'Sekretariat Daerah Provinsi',
+          perihal: 'Undangan Rapat Evaluasi Digitalisasi Arsip Triwulan',
+          kode_klasifikasi: '005',
+          sifat_surat: 'Penting',
+          status_disposisi: 'Diproses',
+          tautan_berkas: 'https://drive.google.com/',
+          ringkasan: 'Rapat koordinasi implementasi arsip elektronik lintas bidang beserta laporan capaian.',
+          created_at: Date.now() - 86400000 * 3
+        },
+        {
+          id: 'sm2',
+          nomor_agenda: 'AGD-002',
+          nomor_surat: '800/088/BKD/' + nowYear,
+          tanggal_surat: `${nowYear}-${prevMonth}-18`,
+          tanggal_terima: `${nowYear}-${prevMonth}-19`,
+          pengirim: 'Badan Kepegawaian Daerah',
+          perihal: 'Permohonan Pembaruan Data Staf Administrasi',
+          kode_klasifikasi: '800',
+          sifat_surat: 'Segera',
+          status_disposisi: 'Selesai',
+          tautan_berkas: 'https://drive.google.com/',
+          ringkasan: 'Verifikasi daftar pegawai aktif pengelola surat menyurat untuk tahun anggaran berjalan.',
+          created_at: Date.now() - 86400000 * 10
+        }
+      ];
+
+      state.surat_keluar = [
+        {
+          id: 'sk1',
+          nomor_surat: `001/005/DKTUD/XI/${nowYear}`,
+          tanggal_surat: `${nowYear}-${nowMonth}-07`,
+          tujuan: 'Seluruh Kepala Unit Kerja',
+          perihal: 'Pemberitahuan Standar Penomoran Surat Elektronik',
+          kode_klasifikasi: '005',
+          sifat_surat: 'Biasa',
+          status: 'Terkirim',
+          tautan_berkas: 'https://drive.google.com/',
+          keterangan: 'Telah didistribusikan melalui sistem internal.',
+          created_at: Date.now() - 86400000 * 2
+        },
+        {
+          id: 'sk2',
+          nomor_surat: `002/800/DKTUD/XI/${nowYear}`,
+          tanggal_surat: `${nowYear}-${nowMonth}-11`,
+          tujuan: 'Inspektorat Wilayah',
+          perihal: 'Penyampaian Laporan Rekapitulasi Persuratan',
+          kode_klasifikasi: '800',
+          sifat_surat: 'Penting',
+          status: 'Proses',
+          tautan_berkas: '',
+          keterangan: 'Menunggu paraf akhir pimpinan.',
+          created_at: Date.now() - 86400000 * 1
+        }
+      ];
+
+      state.disposisi = [
+        {
+          id: 'dp1',
+          surat_masuk_id: 'sm1',
+          nomor_surat: '005/142/SETDA/' + nowYear,
+          perihal_surat: 'Undangan Rapat Evaluasi Digitalisasi Arsip Triwulan',
+          tujuan_user_id: 'u1',
+          tujuan_nama: 'Budi Santoso',
+          instruksi: 'Siapkan bahan presentasi rekap surat masuk & keluar bulan ini sebelum rapat.',
+          batas_waktu: `${nowYear}-${nowMonth}-25`,
+          status: 'Diproses',
+          catatan_tindak_lanjut: 'Draf rekap sedang disusun dan diverifikasi.',
+          updated_at: Date.now() - 3600000 * 6
+        },
+        {
+          id: 'dp2',
+          surat_masuk_id: 'sm2',
+          nomor_surat: '800/088/BKD/' + nowYear,
+          perihal_surat: 'Permohonan Pembaruan Data Staf Administrasi',
+          tujuan_user_id: 'u2',
+          tujuan_nama: 'Siti Rahmawati',
+          instruksi: 'Mohon validasi daftar staf pengelola arsip dan kirimkan balasan.',
+          batas_waktu: `${nowYear}-${prevMonth}-26`,
+          status: 'Selesai',
+          catatan_tindak_lanjut: 'Data pegawai sudah divalidasi dan dikirim ke BKD.',
+          updated_at: Date.now() - 86400000 * 5
+        }
+      ];
+    }
+
+    // =========================================================================
+    // 3. INISIALISASI FIREBASE MURNI (HANYA SAAT IS_PREVIEW === false)
+    // =========================================================================
+    async function initFirebaseProduction() {
+      if (IS_PREVIEW) return;
+      try {
+        const [appMod, authMod, fsMod] = await Promise.all([
+          import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),
+          import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js'),
+          import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')
+        ]);
+
+        const app = appMod.initializeApp(firebaseConfig);
+        const auth = authMod.getAuth(app);
+        const db = fsMod.getFirestore(app);
+
+        fb = { app, auth, db, authMod, fsMod };
+
+        // Pantau sesi Firebase Auth untuk Admin
+        authMod.onAuthStateChanged(auth, (firebaseUser) => {
+          if (firebaseUser) {
+            state.currentUser = {
+              id: firebaseUser.uid,
+              email: firebaseUser.email,
+              nama: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Admin'),
+              role: 'Admin',
+              jabatan: 'Administrator Sistem',
+              unit_kerja: 'Tata Usaha'
+            };
+            startRealtimeListeners();
+            enterAppShell();
+          } else if (state.currentUser && state.currentUser.role === 'Admin') {
+            stopRealtimeListeners();
+            state.currentUser = null;
+            showLoginScreen();
+          }
+        });
+      } catch (err) {
+        showToast('Gagal memuat Firebase SDK. Periksa koneksi internet & firebaseConfig.', 'error');
+        console.error(err);
+      }
+    }
+
+    function stopRealtimeListeners() {
+      unsubscribers.forEach((unsub) => {
+        try { unsub(); } catch (_) {}
+      });
+      unsubscribers = [];
+    }
+
+    function startRealtimeListeners() {
+      if (IS_PREVIEW || !fb) return;
+      stopRealtimeListeners();
+
+      const { db, fsMod } = fb;
+      const { collection, doc, onSnapshot, query, orderBy } = fsMod;
+
+      const subscribeCollection = (colName, stateKey, orderField = null) => {
+        const ref = orderField
+          ? query(collection(db, colName), orderBy(orderField, 'desc'))
+          : collection(db, colName);
+
+        const unsub = onSnapshot(ref, (snap) => {
+          state[stateKey] = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          if (state.currentUser) renderApp();
+        }, (err) => {
+          console.error(`Error snapshot ${colName}:`, err);
+          showToast(`Gagal menyinkronkan data ${colName}. Periksa Security Rules.`, 'error');
+        });
+        unsubscribers.push(unsub);
+      };
+
+      subscribeCollection('surat_masuk', 'surat_masuk', 'created_at');
+      subscribeCollection('surat_keluar', 'surat_keluar', 'created_at');
+      subscribeCollection('disposisi', 'disposisi', 'updated_at');
+      subscribeCollection('users', 'users');
+      subscribeCollection('klasifikasi', 'klasifikasi');
+
+      const unsubInstansi = onSnapshot(doc(db, 'pengaturan', 'instansi'), (snap) => {
+        if (snap.exists()) {
+          state.instansi = { ...state.instansi, ...snap.data() };
+          if (state.currentUser) renderApp();
+        }
+      }, () => {});
+      unsubscribers.push(unsubInstansi);
+    }
+
+    // =========================================================================
+    // 4. HELPER CRUD DUAL-MODE (IN-MEMORY VS FIRESTORE MURNI)
+    // =========================================================================
+    async function dbCreate(colName, payload) {
+      if (IS_PREVIEW) {
+        const newDoc = {
+          id: colName + '_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+          ...payload,
+          created_at: Date.now(),
+          updated_at: Date.now()
+        };
+        state[colName].unshift(newDoc);
+        renderApp();
+        return newDoc.id;
+      }
+      const { db, fsMod } = fb;
+      const ref = await fsMod.addDoc(fsMod.collection(db, colName), {
+        ...payload,
+        created_at: fsMod.serverTimestamp(),
+        updated_at: fsMod.serverTimestamp()
+      });
+      return ref.id;
+    }
+
+    async function dbUpdate(colName, id, payload) {
+      if (IS_PREVIEW) {
+        const idx = state[colName].findIndex((item) => item.id === id);
+        if (idx !== -1) {
+          state[colName][idx] = { ...state[colName][idx], ...payload, updated_at: Date.now() };
+          renderApp();
+        }
+        return;
+      }
+      const { db, fsMod } = fb;
+      await fsMod.updateDoc(fsMod.doc(db, colName, id), {
+        ...payload,
+        updated_at: fsMod.serverTimestamp()
+      });
+    }
+
+    async function dbDelete(colName, id) {
+      if (IS_PREVIEW) {
+        state[colName] = state[colName].filter((item) => item.id !== id);
+        renderApp();
+        return;
+      }
+      const { db, fsMod } = fb;
+      await fsMod.deleteDoc(fsMod.doc(db, colName, id));
+    }
+
+    async function dbSaveInstansi(payload) {
+      if (IS_PREVIEW) {
+        state.instansi = { ...state.instansi, ...payload };
+        renderApp();
+        return;
+      }
+      const { db, fsMod } = fb;
+      await fsMod.setDoc(fsMod.doc(db, 'pengaturan', 'instansi'), payload, { merge: true });
+    }
+
+    // =========================================================================
+    // 5. UTILITAS UI (TOAST, ESCAPE HTML, FORMAT TANGGAL, KONFIRMASI)
+    // =========================================================================
+    function esc(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function formatDateIndo(dateStr) {
+      if (!dateStr) return '-';
+      const parts = String(dateStr).split('-');
+      if (parts.length !== 3) return dateStr;
+      const bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const mIdx = parseInt(parts[1], 10) - 1;
+      return `${parts[2]} ${bulan[mIdx] || parts[1]} ${parts[0]}`;
+    }
+
+    function getInitials(name) {
+      if (!name) return 'US';
+      return name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() || '').join('');
+    }
+
+    function getRomanMonth(monthNum) {
+      const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+      return romans[(monthNum - 1) % 12] || 'I';
+    }
+
+    function refreshIcons() {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      const colors = {
+        success: 'bg-[#121212] text-white border-[#D2FA3E]/40',
+        error: 'bg-[#E25C5C] text-white border-rose-400',
+        info: 'bg-[#2F7CF6] text-white border-blue-400'
+      };
+      const iconName = type === 'success' ? 'check-circle-2' : type === 'error' ? 'alert-circle' : 'info';
+      el.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-float border text-xs font-semibold animate-fade-up ${colors[type] || colors.success}`;
+      el.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4 ${type === 'success' ? 'text-[#D2FA3E]' : 'text-white'} shrink-0"></i><span>${esc(message)}</span>`;
+      container.appendChild(el);
+      refreshIcons();
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-6px)';
+        el.style.transition = 'all 0.25s ease';
+        setTimeout(() => el.remove(), 260);
+      }, 3200);
+    }
+
+    function openModal(title, bodyHtml, footerHtml = '') {
+      const container = document.getElementById('modal-container');
+      const panel = document.getElementById('modal-panel');
+      panel.innerHTML = `
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+          <h3 class="text-base font-bold text-gray-900">${title}</h3>
+          <button type="button" id="btn-close-modal" class="w-9 h-9 rounded-full bg-[#F6F8FB] hover:bg-gray-200/80 flex items-center justify-center text-gray-600 transition-colors">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="p-6 overflow-y-auto custom-scroll flex-1">${bodyHtml}</div>
+        ${footerHtml ? `<div class="px-6 py-4 border-t border-gray-100 bg-[#F6F8FB]/60 flex items-center justify-end gap-2.5 shrink-0">${footerHtml}</div>` : ''}
+      `;
+      container.classList.remove('hidden');
+      document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+      refreshIcons();
+    }
+
+    function closeModal() {
+      document.getElementById('modal-container').classList.add('hidden');
+    }
+
+    function openConfirmModal(title, message, onConfirm) {
+      openModal(
+        esc(title),
+        `<div class="flex items-start gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-rose-50 text-[#E25C5C] flex items-center justify-center shrink-0">
+            <i data-lucide="trash-2" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-700 leading-relaxed">${esc(message)}</p>
+            <p class="text-xs text-gray-400 mt-1.5">Tindakan ini tidak dapat dibatalkan setelah dikonfirmasi.</p>
+          </div>
+        </div>`,
+        `<button type="button" id="confirm-cancel" class="px-4 py-2.5 rounded-full text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50">Batal</button>
+         <button type="button" id="confirm-ok" class="px-5 py-2.5 rounded-full text-xs font-semibold text-white bg-[#E25C5C] hover:bg-rose-600 transition-colors">Ya, Hapus</button>`
+      );
+      document.getElementById('confirm-cancel').addEventListener('click', closeModal);
+      document.getElementById('confirm-ok').addEventListener('click', async () => {
+        closeModal();
+        await onConfirm();
+      });
+    }
+
+    function badgeSifat(sifat) {
+      const map = {
+        Biasa: 'bg-slate-100 text-slate-600',
+        Penting: 'bg-blue-50 text-[#2F7CF6]',
+        Segera: 'bg-[#D2FA3E]/60 text-[#121212]',
+        Rahasia: 'bg-rose-50 text-[#E25C5C]'
+      };
+      return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${map[sifat] || map.Biasa}">${esc(sifat || 'Biasa')}</span>`;
+    }
+
+    function badgeStatus(status) {
+      const map = {
+        Selesai: 'bg-emerald-50 text-emerald-700',
+        Terkirim: 'bg-emerald-50 text-emerald-700',
+        Diproses: 'bg-blue-50 text-[#2F7CF6]',
+        Proses: 'bg-blue-50 text-[#2F7CF6]',
+        Menunggu: 'bg-amber-50 text-amber-700',
+        Belum: 'bg-gray-100 text-gray-500',
+        Draft: 'bg-gray-100 text-gray-600'
+      };
+      return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${map[status] || map.Belum}">
+        <span class="w-1.5 h-1.5 rounded-full bg-current"></span>${esc(status || 'Belum')}
+      </span>`;
+    }
+
+    function isAdmin() {
+      return state.currentUser && state.currentUser.role === 'Admin';
+    }
+
+    // =========================================================================
+    // 6. AUTENTIKASI HYBRID (ADMIN VIA FIREBASE AUTH, USER VIA FIRESTORE)
+    // =========================================================================
+    function setupLoginUI() {
+      // Tampilkan elemen Preview HANYA jika IS_PREVIEW === true
+      if (IS_PREVIEW) {
+        document.getElementById('login-preview-banner').classList.remove('hidden');
+        document.getElementById('login-mode-pill').classList.remove('hidden');
+        document.getElementById('login-demo-box').classList.remove('hidden');
+        document.getElementById('global-preview-bar').classList.remove('hidden');
+      }
+
+      const tabAdmin = document.getElementById('tab-login-admin');
+      const tabUser = document.getElementById('tab-login-user');
+      const labelId = document.getElementById('label-login-id');
+      const inputId = document.getElementById('login-input-id');
+      const iconId = document.getElementById('icon-login-id');
+      const errBox = document.getElementById('login-error');
+
+      const switchLoginTab = (mode) => {
+        state.loginMode = mode;
+        errBox.classList.add('hidden');
+        if (mode === 'admin') {
+          tabAdmin.className = 'py-2.5 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 bg-[#121212] text-white shadow-sm';
+          tabUser.className = 'py-2.5 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 text-gray-500 hover:text-gray-900';
+          labelId.textContent = 'Email Admin';
+          inputId.type = 'email';
+          inputId.placeholder = 'admin@instansi.go.id';
+          iconId.setAttribute('data-lucide', 'mail');
+        } else {
+          tabUser.className = 'py-2.5 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 bg-[#121212] text-white shadow-sm';
+          tabAdmin.className = 'py-2.5 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 text-gray-500 hover:text-gray-900';
+          labelId.textContent = 'Username Staf / Pimpinan';
+          inputId.type = 'text';
+          inputId.placeholder = 'Masukkan username Anda';
+          iconId.setAttribute('data-lucide', 'user');
+        }
+        inputId.value = '';
+        document.getElementById('login-input-password').value = '';
+        refreshIcons();
+      };
+
+      tabAdmin.addEventListener('click', () => switchLoginTab('admin'));
+      tabUser.addEventListener('click', () => switchLoginTab('user'));
+
+      // Toggle visibility password
+      document.getElementById('btn-toggle-pass').addEventListener('click', () => {
+        const passInput = document.getElementById('login-input-password');
+        passInput.type = passInput.type === 'password' ? 'text' : 'password';
+      });
+
+      // Demo quick fill (Hanya berfungsi jika IS_PREVIEW === true)
+      if (IS_PREVIEW) {
+        document.getElementById('btn-fill-demo-admin').addEventListener('click', () => {
+          switchLoginTab('admin');
+          inputId.value = 'admin@instansi.go.id';
+          document.getElementById('login-input-password').value = 'admin123';
+        });
+        document.getElementById('btn-fill-demo-user').addEventListener('click', () => {
+          switchLoginTab('user');
+          inputId.value = 'budi.staf';
+          document.getElementById('login-input-password').value = 'staf123';
+        });
+      }
+
+      // Submit Login
+      document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errBox.classList.add('hidden');
+        const idVal = inputId.value.trim();
+        const passVal = document.getElementById('login-input-password').value;
+        const submitBtn = document.getElementById('btn-login-submit');
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-70');
+
+        try {
+          if (state.loginMode === 'admin') {
+            await handleAdminLogin(idVal, passVal);
+          } else {
+            await handleUserLogin(idVal, passVal);
+          }
+        } catch (err) {
+          errBox.textContent = err.message || 'Gagal masuk. Periksa kembali kredensial Anda.';
+          errBox.classList.remove('hidden');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-70');
+        }
+      });
+    }
+
+    async function handleAdminLogin(email, password) {
+      if (IS_PREVIEW) {
+        if (email.toLowerCase() === 'admin@instansi.go.id' && password === 'admin123') {
+          state.currentUser = {
+            id: 'preview-admin',
+            email,
+            nama: 'Naiem Admin',
+            role: 'Admin',
+            jabatan: 'Administrator Tata Usaha',
+            unit_kerja: 'Sekretariat'
+          };
+          enterAppShell();
+          showToast('Berhasil masuk sebagai Admin (Mode Preview)');
+          return;
+        }
+        throw new Error('Kredensial Admin preview salah. Gunakan admin@instansi.go.id / admin123.');
+      }
+
+      // Mode Produksi: Murni Firebase Authentication
+      if (!fb) throw new Error('Firebase belum siap. Periksa konfigurasi firebaseConfig.');
+      try {
+        await fb.authMod.signInWithEmailAndPassword(fb.auth, email, password);
+        showToast('Selamat datang, Admin!');
+      } catch (err) {
+        if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+          throw new Error('Email atau kata sandi Admin tidak valid.');
+        }
+        throw new Error('Autentikasi Firebase gagal: ' + err.message);
+      }
+    }
+
+    async function handleUserLogin(username, password) {
+      if (IS_PREVIEW) {
+        const found = state.users.find((u) => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+        if (!found) throw new Error('Username atau kata sandi Staf tidak ditemukan (Mode Preview).');
+        if (found.status_aktif === false) throw new Error('Akun Anda sedang dinonaktifkan oleh Admin.');
+        state.currentUser = {
+          id: found.id,
+          username: found.username,
+          nama: found.nama_lengkap,
+          role: found.role || 'Staf',
+          jabatan: found.jabatan,
+          unit_kerja: found.unit_kerja
+        };
+        enterAppShell();
+        showToast(`Selamat datang, ${found.nama_lengkap}`);
+        return;
+      }
+
+      // Mode Produksi: Validasi langsung ke koleksi `users` Firestore
+      if (!fb) throw new Error('Firebase belum siap. Periksa konfigurasi firebaseConfig.');
+      const { db, fsMod } = fb;
+      const q = fsMod.query(fsMod.collection(db, 'users'), fsMod.where('username', '==', username));
+      const snap = await fsMod.getDocs(q);
+      if (snap.empty) {
+        throw new Error('Username tidak terdaftar di database instansi.');
+      }
+      const matchedDoc = snap.docs.find((d) => d.data().password === password);
+      if (!matchedDoc) {
+        throw new Error('Kata sandi tidak sesuai.');
+      }
+      const uData = matchedDoc.data();
+      if (uData.status_aktif === false) {
+        throw new Error('Akun Anda dinonaktifkan. Hubungi Admin Tata Usaha.');
+      }
+
+      state.currentUser = {
+        id: matchedDoc.id,
+        username: uData.username,
+        nama: uData.nama_lengkap,
+        role: uData.role || 'Staf',
+        jabatan: uData.jabatan || '',
+        unit_kerja: uData.unit_kerja || ''
+      };
+      startRealtimeListeners();
+      enterAppShell();
+      showToast(`Selamat datang, ${uData.nama_lengkap}!`);
+    }
+
+    async function handleLogout() {
+      stopRealtimeListeners();
+      if (!IS_PREVIEW && fb && fb.auth.currentUser) {
+        try { await fb.authMod.signOut(fb.auth); } catch (_) {}
+      }
+      state.currentUser = null;
+      state.activeMenu = 'dashboard';
+      if (!IS_PREVIEW) {
+        state.surat_masuk = [];
+        state.surat_keluar = [];
+        state.disposisi = [];
+        state.users = [];
+        state.klasifikasi = [];
+      }
+      showLoginScreen();
+      showToast('Anda telah keluar dari aplikasi.', 'info');
+    }
+
+    function showLoginScreen() {
+      document.getElementById('app-shell').classList.add('hidden');
+      document.getElementById('mobile-bottom-nav').classList.add('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+      refreshIcons();
+    }
+
+    function enterAppShell() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      document.getElementById('mobile-bottom-nav').classList.remove('hidden');
+      renderApp();
+    }
+
+    // =========================================================================
+    // 7. NAVIGASI & RENDER SHELL UTAMA
+    // =========================================================================
+    function getMenuItems() {
+      const items = [
+        { id: 'dashboard', label: 'Dashboard', icon: 'layout-grid' },
+        { id: 'surat_masuk', label: 'Surat Masuk', icon: 'mail-open' },
+        { id: 'surat_keluar', label: 'Surat Keluar', icon: 'send' },
+        { id: 'disposisi', label: 'Disposisi', icon: 'git-pull-request-arrow' }
+      ];
+      if (isAdmin()) {
+        items.push({ id: 'pengaturan', label: 'Master', icon: 'sliders-horizontal' });
+      }
+      return items;
+    }
+
+    function navigateTo(menuId) {
+      if (menuId === 'pengaturan' && !isAdmin()) {
+        showToast('Menu Master & Pengaturan hanya tersedia untuk Admin.', 'error');
+        return;
+      }
+      state.activeMenu = menuId;
+      renderApp();
+      document.getElementById('arsipflow-root').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function filterByGlobalMonth(items, dateField) {
+      if (!state.globalMonth) return items;
+      return items.filter((it) => String(it[dateField] || '').startsWith(state.globalMonth));
+    }
+
+    function renderNavigation() {
+      const items = getMenuItems();
+
+      // 1. Top Pill Tabs (Desktop)
+      const topNav = document.getElementById('top-nav-tabs');
+      topNav.innerHTML = items.map((m) => {
+        const active = state.activeMenu === m.id;
+        return `<button type="button" data-nav="${m.id}"
+          class="px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 ${
+            active ? 'bg-[#121212] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-[#F6F8FB]'
+          }">${m.label}</button>`;
+      }).join('');
+
+      // 2. Left Floating Icon Sidebar Rail (Desktop)
+      const sidebar = document.getElementById('sidebar-nav-items');
+      sidebar.innerHTML = items.map((m) => {
+        const active = state.activeMenu === m.id;
+        return `<button type="button" data-nav="${m.id}" title="${m.label}"
+          class="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 ${
+            active
+              ? 'bg-[#121212] text-[#D2FA3E] shadow-md scale-105'
+              : 'text-gray-500 hover:bg-[#F6F8FB] hover:text-gray-900'
+          }">
+          <i data-lucide="${m.icon}" class="w-5 h-5"></i>
+        </button>`;
+      }).join('');
+
+      // Sembunyikan ikon pengaturan bawah sidebar jika bukan Admin
+      const sidebarSettingsBtn = document.getElementById('sidebar-btn-settings');
+      if (isAdmin()) {
+        sidebarSettingsBtn.classList.remove('hidden');
+        sidebarSettingsBtn.className = `w-11 h-11 rounded-full flex items-center justify-center transition-all ${
+          state.activeMenu === 'pengaturan' ? 'bg-[#121212] text-[#D2FA3E]' : 'text-gray-500 hover:bg-[#F6F8FB] hover:text-gray-900'
+        }`;
+      } else {
+        sidebarSettingsBtn.classList.add('hidden');
+      }
+
+      // 3. Mobile Floating Bottom Navigation Bar
+      const mobileNav = document.getElementById('mobile-bottom-nav');
+      mobileNav.innerHTML = items.map((m) => {
+        const active = state.activeMenu === m.id;
+        return `<button type="button" data-nav="${m.id}"
+          class="flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-full transition-all duration-200 ${
+            active ? 'bg-[#121212] text-[#D2FA3E] px-4 shadow-sm' : 'text-gray-500'
+          }">
+          <i data-lucide="${m.icon}" class="w-4 h-4"></i>
+          <span class="text-[10px] font-semibold ${active ? 'text-white' : 'text-gray-500'}">${m.label.replace('Surat ', '')}</span>
+        </button>`;
+      }).join('');
+
+      // Bind navigasi
+      document.querySelectorAll('[data-nav]').forEach((btn) => {
+        btn.onclick = () => navigateTo(btn.getAttribute('data-nav'));
+      });
+    }
+
+    function renderHeaderAndGreeting() {
+      const user = state.currentUser;
+      document.getElementById('header-avatar').textContent = getInitials(user.nama);
+      document.getElementById('header-user-name').textContent = user.nama;
+      document.getElementById('header-user-role').textContent = `${user.role}${user.unit_kerja ? ' • ' + user.unit_kerja : ''}`;
+
+      // Notifikasi disposisi menunggu/diproses
+      const relevantDispo = isAdmin()
+        ? state.disposisi.filter((d) => d.status !== 'Selesai')
+        : state.disposisi.filter((d) => d.tujuan_user_id === user.id && d.status !== 'Selesai');
+
+      const notifDot = document.getElementById('notif-dot');
+      const notifBadge = document.getElementById('notif-count-badge');
+      const notifList = document.getElementById('notif-list');
+      notifBadge.textContent = relevantDispo.length;
+      if (relevantDispo.length > 0) notifDot.classList.remove('hidden');
+      else notifDot.classList.add('hidden');
+
+      if (relevantDispo.length === 0) {
+        notifList.innerHTML = `<div class="text-xs text-gray-400 text-center py-5">Semua disposisi telah diselesaikan.</div>`;
+      } else {
+        notifList.innerHTML = relevantDispo.slice(0, 5).map((d) => `
+          <div class="p-3 rounded-2xl bg-[#F6F8FB] hover:bg-gray-100 cursor-pointer transition-colors" data-open-dispo="${d.id}">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="text-[11px] font-bold text-gray-900 truncate">${esc(d.nomor_surat)}</span>
+              ${badgeStatus(d.status)}
+            </div>
+            <p class="text-xs text-gray-600 line-clamp-1">${esc(d.perihal_surat)}</p>
+            <p class="text-[10px] text-gray-400 mt-1">Batas: ${formatDateIndo(d.batas_waktu)} • ${esc(d.tujuan_nama)}</p>
+          </div>
+        `).join('');
+        notifList.querySelectorAll('[data-open-dispo]').forEach((el) => {
+          el.onclick = () => {
+            document.getElementById('notif-dropdown').classList.add('hidden');
+            navigateTo('disposisi');
+          };
+        });
+      }
+
+      // Greeting & CTA Sub-bar
+      const backBtn = document.getElementById('btn-back-dash');
+      const titleEl = document.getElementById('page-greeting');
+      const subEl = document.getElementById('page-subtitle');
+      const ctaBtn = document.getElementById('btn-primary-cta');
+      const ctaLabel = document.getElementById('btn-primary-cta-label');
+
+      const titles = {
+        dashboard: [`Halo, ${user.nama.split(' ')[0]}`, state.instansi.nama_instansi],
+        surat_masuk: ['Surat Masuk', 'Kelola arsip surat masuk & lembar disposisi'],
+        surat_keluar: ['Surat Keluar', 'Pencatatan & penomoran surat keluar instansi'],
+        disposisi: ['Disposisi Surat', 'Pantau instruksi & tindak lanjut surat masuk'],
+        pengaturan: ['Master & Pengaturan', 'Manajemen staf, kode klasifikasi & profil instansi']
+      };
+
+      titleEl.textContent = titles[state.activeMenu][0];
+      subEl.textContent = titles[state.activeMenu][1];
+
+      if (state.activeMenu === 'dashboard') {
+        backBtn.classList.add('hidden');
+        backBtn.classList.remove('flex');
+      } else {
+        backBtn.classList.remove('hidden');
+        backBtn.classList.add('flex');
+      }
+
+      // Sesuaikan tombol CTA utama berdasarkan peran & halaman
+      if (!isAdmin() && state.activeMenu !== 'disposisi') {
+        ctaBtn.classList.add('hidden');
+      } else if (state.activeMenu === 'surat_keluar' && isAdmin()) {
+        ctaBtn.classList.remove('hidden');
+        ctaLabel.textContent = 'Buat Surat Keluar';
+        ctaBtn.onclick = () => openSuratKeluarModal();
+      } else if (state.activeMenu === 'disposisi' && isAdmin()) {
+        ctaBtn.classList.remove('hidden');
+        ctaLabel.textContent = 'Buat Disposisi Baru';
+        ctaBtn.onclick = () => openDisposisiModal();
+      } else if (state.activeMenu === 'disposisi' && !isAdmin()) {
+        ctaBtn.classList.add('hidden');
+      } else if (state.activeMenu === 'pengaturan' && isAdmin()) {
+        ctaBtn.classList.remove('hidden');
+        ctaLabel.textContent = state.settingsTab === 'klasifikasi' ? 'Tambah Klasifikasi' : 'Tambah Akun Staf';
+        ctaBtn.onclick = () => state.settingsTab === 'klasifikasi' ? openKlasifikasiModal() : openUserModal();
+      } else if (isAdmin()) {
+        ctaBtn.classList.remove('hidden');
+        ctaLabel.textContent = 'Catat Surat Masuk';
+        ctaBtn.onclick = () => openSuratMasukModal();
+      }
+    }
+
+    function renderApp() {
+      if (!state.currentUser) return;
+      renderNavigation();
+      renderHeaderAndGreeting();
+
+      const main = document.getElementById('main-content');
+      if (state.activeMenu === 'dashboard') {
+        renderDashboardView(main);
+      } else if (state.activeMenu === 'surat_masuk') {
+        renderSuratMasukView(main);
+      } else if (state.activeMenu === 'surat_keluar') {
+        renderSuratKeluarView(main);
+      } else if (state.activeMenu === 'disposisi') {
+        renderDisposisiView(main);
+      } else if (state.activeMenu === 'pengaturan') {
+        renderPengaturanView(main);
+      }
+      refreshIcons();
+    }
+
+    // =========================================================================
+    // 8. VIEW 1: DASHBOARD (MODERN MINIMALIST BENTO GRID ALA REFERENSI)
+    // =========================================================================
+    function renderDashboardView(container) {
+      const masuk = filterByGlobalMonth(state.surat_masuk, 'tanggal_terima');
+      const keluar = filterByGlobalMonth(state.surat_keluar, 'tanggal_surat');
+      const disposisiAll = isAdmin()
+        ? state.disposisi
+        : state.disposisi.filter((d) => d.tujuan_user_id === state.currentUser.id);
+
+      const dispoSelesai = disposisiAll.filter((d) => d.status === 'Selesai').length;
+      const dispoAktif = disposisiAll.filter((d) => d.status !== 'Selesai').length;
+      const dispoTotal = disposisiAll.length;
+      const dispoPct = dispoTotal > 0 ? Math.round((dispoSelesai / dispoTotal) * 100) : 0;
+
+      // Data Grafik Batang Kapsul (Bulanan 6 Bulan Terakhir atau Tahunan 6 Tahun / 6 Periode)
+      const chartData = buildChartSeries(state.chartMode);
+      const maxVal = Math.max(4, ...chartData.map((c) => c.value));
+
+      // Gabungan riwayat surat terbaru
+      let recentCombined = [
+        ...masuk.map((s) => ({
+          id: s.id,
+          jenis: 'masuk',
+          judul: s.pengirim,
+          sub: s.perihal,
+          nomor: s.nomor_surat,
+          tanggal: s.tanggal_terima,
+          sifat: s.sifat_surat,
+          status: s.status_disposisi
+        })),
+        ...keluar.map((s) => ({
+          id: s.id,
+          jenis: 'keluar',
+          judul: s.tujuan,
+          sub: s.perihal,
+          nomor: s.nomor_surat,
+          tanggal: s.tanggal_surat,
+          sifat: s.sifat_surat,
+          status: s.status
+        }))
+      ].sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal)));
+
+      if (state.dashboardTableFilter !== 'all') {
+        recentCombined = recentCombined.filter((r) => r.jenis === state.dashboardTableFilter);
+      }
+
+      const activeUsers = state.users.filter((u) => u.status_aktif !== false);
+      const avatarColors = ['bg-[#121212] text-[#D2FA3E]', 'bg-[#2F7CF6] text-white', 'bg-emerald-600 text-white', 'bg-amber-500 text-white'];
+
+      container.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <!-- KOLOM KIRI (3): KARTU RINGKASAN BERTUMPUK 3 WARNA -->
+          <div class="lg:col-span-3 bg-white rounded-[28px] p-5 shadow-bento border border-gray-100/80 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-[15px] font-semibold text-gray-900">Ringkasan Arsip</h3>
+              <button type="button" data-nav="surat_masuk" class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-[#121212] hover:text-white transition-all">
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- 3 Stacked High-Contrast Cards -->
+            <div class="flex flex-col">
+              <!-- Card 1: Hitam Pekat (Surat Masuk) -->
+              <div data-nav="surat_masuk" class="cursor-pointer bg-[#121212] text-white rounded-[22px] p-4 pb-7 flex items-center justify-between transition-transform duration-200 hover:-translate-y-0.5">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-[#E25C5C] flex items-center justify-center shrink-0">
+                    <i data-lucide="inbox" class="w-5 h-5 text-white"></i>
+                  </div>
+                  <div>
+                    <div class="text-sm font-semibold">Surat Masuk</div>
+                    <div class="text-xs text-gray-400 font-medium">${masuk.length} dokumen</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-base font-bold text-[#D2FA3E]">${masuk.length}</div>
+                  <div class="text-[10px] text-gray-400">Terarsip</div>
+                </div>
+              </div>
+
+              <!-- Card 2: Hijau Limau (Surat Keluar) -->
+              <div data-nav="surat_keluar" class="cursor-pointer -mt-4 bg-[#D2FA3E] text-[#121212] rounded-[22px] p-4 pb-7 flex items-center justify-between shadow-sm transition-transform duration-200 hover:-translate-y-0.5">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-[#121212] flex items-center justify-center shrink-0">
+                    <i data-lucide="send" class="w-4 h-4 text-[#D2FA3E]"></i>
+                  </div>
+                  <div>
+                    <div class="text-sm font-bold">Surat Keluar</div>
+                    <div class="text-xs text-neutral-700 font-medium">${keluar.length} dokumen</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-base font-extrabold">${keluar.length}</div>
+                  <div class="text-[10px] text-neutral-700">Tercatat</div>
+                </div>
+              </div>
+
+              <!-- Card 3: Putih Bersih (Disposisi Aktif) -->
+              <div data-nav="disposisi" class="cursor-pointer -mt-4 bg-white text-gray-900 rounded-[22px] p-4 border border-gray-100 shadow-sm flex items-center justify-between transition-transform duration-200 hover:-translate-y-0.5">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-[#121212] flex items-center justify-center shrink-0">
+                    <i data-lucide="git-pull-request-arrow" class="w-4 h-4 text-white"></i>
+                  </div>
+                  <div>
+                    <div class="text-sm font-bold">Disposisi Aktif</div>
+                    <div class="text-xs text-gray-400 font-medium">${dispoAktif} berjalan</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-base font-bold text-[#2F7CF6]">${dispoTotal}</div>
+                  <div class="text-[10px] text-gray-400">Total tugas</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- KOLOM TENGAH (5): GRAFIK BATANG KAPSUL ARUS SURAT -->
+          <div class="lg:col-span-5 bg-white rounded-[28px] p-6 shadow-bento border border-gray-100/80 flex flex-col justify-between">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-[#F6F8FB] flex items-center justify-center text-gray-700">
+                  <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                </div>
+                <h3 class="text-[15px] font-semibold text-gray-900">Arus Persuratan</h3>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="bg-[#F6F8FB] p-1 rounded-full flex items-center gap-1">
+                  <button type="button" id="chart-btn-monthly" class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${state.chartMode === 'monthly' ? 'bg-[#2F7CF6] text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'}">Bulanan</button>
+                  <button type="button" id="chart-btn-annual" class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${state.chartMode === 'annual' ? 'bg-[#2F7CF6] text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'}">Tahunan</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Capsule Bar Chart Canvas -->
+            <div class="relative pt-4 pb-1">
+              <!-- Dashed Horizontal Gridlines -->
+              <div class="absolute inset-x-0 top-4 bottom-8 flex flex-col justify-between pointer-events-none">
+                ${[maxVal, Math.round(maxVal * 0.66), Math.round(maxVal * 0.33), 0].map((tick) => `
+                  <div class="flex items-center gap-3">
+                    <span class="text-[11px] text-gray-400 w-6 text-right font-medium">${tick}</span>
+                    <div class="flex-1 border-b border-dashed border-gray-200"></div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Bars -->
+              <div class="relative z-10 pl-9 pr-1 h-48 flex items-end justify-between gap-2 sm:gap-3">
+                ${chartData.map((bar) => {
+                  const pct = Math.max(14, Math.round((bar.value / maxVal) * 100));
+                  const isPeak = bar.isPeak && bar.value > 0;
+                  return `
+                    <div class="flex-1 flex flex-col items-center h-full justify-end group">
+                      <div class="text-[10px] font-bold mb-1 ${isPeak ? 'text-[#2F7CF6]' : 'text-gray-400'} opacity-85 group-hover:opacity-100">${bar.value}</div>
+                      <div class="w-full max-w-[44px] rounded-full transition-all duration-500 ${isPeak ? 'bar-stripe-peak shadow-md shadow-blue-500/20' : 'bar-stripe-soft'}" style="height: ${bar.value === 0 ? '14%' : pct + '%'}"></div>
+                      <span class="mt-2.5 text-[11px] font-medium ${isPeak ? 'text-gray-900 font-bold' : 'text-gray-400'}">${bar.label}</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- KOLOM KANAN ATAS (4): PROGRES DISPOSISI & AKSI CEPAT -->
+          <div class="lg:col-span-4 bg-white rounded-[28px] p-6 shadow-bento border border-gray-100/80 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-[15px] font-semibold text-gray-900">Progres Disposisi</h3>
+              <button type="button" data-nav="disposisi" class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-[#121212] hover:text-white transition-all">
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <div>
+              <p class="text-xs text-gray-400 font-medium">Total Surat Terkelola</p>
+              <div class="text-3xl sm:text-[34px] font-bold tracking-tight text-gray-900 mt-0.5">${masuk.length + keluar.length} <span class="text-sm font-medium text-gray-400">dokumen</span></div>
+            </div>
+
+            <!-- 4 Quick Action Square Rounded Buttons -->
+            <div class="grid grid-cols-4 gap-2.5 my-5">
+              <button type="button" id="qa-masuk" title="Catat Surat Masuk"
+                class="h-12 rounded-2xl bg-[#F6F8FB] hover:bg-[#121212] hover:text-[#D2FA3E] text-gray-700 flex items-center justify-center transition-all">
+                <i data-lucide="mail-plus" class="w-4 h-4"></i>
+              </button>
+              <button type="button" id="qa-keluar" title="Buat Surat Keluar"
+                class="h-12 rounded-2xl bg-[#F6F8FB] hover:bg-[#121212] hover:text-[#D2FA3E] text-gray-700 flex items-center justify-center transition-all">
+                <i data-lucide="send" class="w-4 h-4"></i>
+              </button>
+              <button type="button" id="qa-disposisi" title="Lihat Disposisi"
+                class="h-12 rounded-2xl bg-[#F6F8FB] hover:bg-[#121212] hover:text-[#D2FA3E] text-gray-700 flex items-center justify-center transition-all">
+                <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+              </button>
+              <button type="button" id="qa-cetak" title="Cetak Rekap Persuratan"
+                class="h-12 rounded-2xl bg-[#F6F8FB] hover:bg-[#121212] hover:text-[#D2FA3E] text-gray-700 flex items-center justify-center transition-all">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Lime Progress Bar with 3-Dot Vertical Thumb -->
+            <div>
+              <div class="flex items-center justify-between text-xs mb-2">
+                <span class="font-medium text-gray-600">Penyelesaian Disposisi</span>
+                <span class="font-bold text-gray-900">${dispoPct}%</span>
+              </div>
+              <div class="relative h-7 bg-[#F6F8FB] rounded-full overflow-visible flex items-center p-1">
+                <div class="h-full bg-[#D2FA3E] rounded-full transition-all duration-500" style="width: ${Math.max(12, dispoPct)}%"></div>
+                <div class="w-7 h-7 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center -ml-3.5 shrink-0">
+                  <i data-lucide="more-vertical" class="w-3.5 h-3.5 text-gray-700"></i>
+                </div>
+              </div>
+              <div class="flex items-center justify-between mt-2.5 text-xs">
+                <span class="font-bold text-gray-900">${dispoSelesai} <span class="text-gray-400 font-normal">Selesai</span></span>
+                <span class="text-[11px] text-gray-400">${dispoAktif} menunggu tindak lanjut</span>
+              </div>
+            </div>
+
+            <!-- Bottom Summary Pill -->
+            <div class="mt-4 bg-[#F6F8FB] rounded-full px-4 py-2.5 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-gray-700 shadow-sm">
+                  <i data-lucide="folder-check" class="w-3.5 h-3.5"></i>
+                </div>
+                <span class="text-xs font-bold text-gray-900">${state.klasifikasi.length} Kode Klasifikasi</span>
+              </div>
+              <span class="text-xs font-bold text-emerald-600 flex items-center gap-0.5">
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> Aktif
+              </span>
+            </div>
+          </div>
+
+          <!-- BARIS BAWAH KIRI (8): TABEL AKTIVITAS SURAT TERBARU -->
+          <div class="lg:col-span-8 bg-white rounded-[28px] p-6 shadow-bento border border-gray-100/80">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+              <div>
+                <h3 class="text-[15px] font-semibold text-gray-900">Riwayat Surat Terbaru</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Pantau arus surat masuk dan surat keluar terkini</p>
+              </div>
+              <select id="dash-table-filter" class="bg-white border border-gray-200 rounded-full px-4 py-2 text-xs font-semibold text-gray-700 outline-none cursor-pointer">
+                <option value="all" ${state.dashboardTableFilter === 'all' ? 'selected' : ''}>Semua Jenis</option>
+                <option value="masuk" ${state.dashboardTableFilter === 'masuk' ? 'selected' : ''}>Surat Masuk</option>
+                <option value="keluar" ${state.dashboardTableFilter === 'keluar' ? 'selected' : ''}>Surat Keluar</option>
+              </select>
+            </div>
+
+            ${recentCombined.length === 0 ? renderEmptyState('Belum ada aktivitas surat', 'Mulai catat surat masuk atau surat keluar untuk menampilkan riwayat di sini.') : `
+              <div class="overflow-x-auto custom-scroll">
+                <table class="w-full text-left border-collapse min-w-[560px]">
+                  <thead>
+                    <tr class="text-xs text-gray-400 font-medium">
+                      <th class="pb-3 pl-3 font-medium">Instansi / Perihal</th>
+                      <th class="pb-3 font-medium">Tanggal</th>
+                      <th class="pb-3 font-medium">Sifat</th>
+                      <th class="pb-3 pr-3 text-right font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-sm">
+                    ${recentCombined.slice(0, 6).map((row, idx) => `
+                      <tr data-detail-type="${row.jenis}" data-detail-id="${row.id}"
+                        class="cursor-pointer group transition-colors ${idx === 1 ? 'bg-[#F6F8FB]' : 'hover:bg-[#F6F8FB]'}">
+                        <td class="py-3 pl-3 rounded-l-2xl">
+                          <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${row.jenis === 'masuk' ? 'bg-[#121212] text-[#D2FA3E]' : 'bg-[#D2FA3E] text-[#121212]'}">
+                              <i data-lucide="${row.jenis === 'masuk' ? 'arrow-down-left' : 'arrow-up-right'}" class="w-4 h-4"></i>
+                            </div>
+                            <div class="min-w-0">
+                              <div class="text-xs sm:text-sm font-semibold text-gray-900 truncate max-w-[240px]">${esc(row.judul)}</div>
+                              <div class="text-[11px] text-gray-400 truncate max-w-[260px]">${esc(row.nomor)} • ${esc(row.sub)}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="py-3 text-xs font-medium text-gray-600 whitespace-nowrap">${formatDateIndo(row.tanggal)}</td>
+                        <td class="py-3 whitespace-nowrap">${badgeSifat(row.sifat)}</td>
+                        <td class="py-3 pr-3 rounded-r-2xl text-right whitespace-nowrap">${badgeStatus(row.status)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `}
+          </div>
+
+          <!-- BARIS BAWAH KANAN (4): KARTU STAF & UNIT PENERIMA DISPOSISI -->
+          <div class="lg:col-span-4 bg-white rounded-[28px] p-6 shadow-bento border border-gray-100/80 flex flex-col justify-between">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="text-[15px] font-semibold text-gray-900">Staf &amp; Unit Aktif</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Penerima disposisi persuratan</p>
+              </div>
+              <button type="button" data-nav="${isAdmin() ? 'pengaturan' : 'disposisi'}" class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-[#121212] hover:text-white transition-all">
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <div class="my-5 flex items-baseline gap-2.5">
+              <span class="text-3xl font-bold tracking-tight text-gray-900">${activeUsers.length}</span>
+              <span class="text-sm font-medium text-gray-400">Personel</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-[#D2FA3E] text-[#121212] text-[11px] font-bold">Aktif</span>
+            </div>
+
+            <!-- Avatar Stack Box -->
+            <div class="bg-[#F6F8FB] rounded-full p-2.5 flex items-center justify-between">
+              <div class="flex items-center -space-x-2.5">
+                ${activeUsers.length === 0 ? `<span class="text-xs text-gray-400 px-3">Belum ada akun staf</span>` :
+                  activeUsers.slice(0, 4).map((u, i) => `
+                    <div title="${esc(u.nama_lengkap)} (${esc(u.jabatan)})"
+                      class="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold ${avatarColors[i % avatarColors.length]}">
+                      ${getInitials(u.nama_lengkap)}
+                    </div>
+                  `).join('')
+                }
+              </div>
+              <div class="w-10 h-10 rounded-full bg-[#D2FA3E] text-[#121212] text-xs font-extrabold flex items-center justify-center border-2 border-white">
+                ${activeUsers.length > 4 ? '+' + (activeUsers.length - 4) : activeUsers.length}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Bind Dashboard Events
+      document.getElementById('chart-btn-monthly').onclick = () => { state.chartMode = 'monthly'; renderApp(); };
+      document.getElementById('chart-btn-annual').onclick = () => { state.chartMode = 'annual'; renderApp(); };
+      document.getElementById('dash-table-filter').onchange = (e) => { state.dashboardTableFilter = e.target.value; renderApp(); };
+
+      document.getElementById('qa-masuk').onclick = () => isAdmin() ? openSuratMasukModal() : navigateTo('surat_masuk');
+      document.getElementById('qa-keluar').onclick = () => isAdmin() ? openSuratKeluarModal() : navigateTo('surat_keluar');
+      document.getElementById('qa-disposisi').onclick = () => navigateTo('disposisi');
+      document.getElementById('qa-cetak').onclick = () => printRekapPersuratan();
+
+      container.querySelectorAll('[data-nav]').forEach((el) => {
+        el.onclick = () => navigateTo(el.getAttribute('data-nav'));
+      });
+      container.querySelectorAll('[data-detail-id]').forEach((row) => {
+        row.onclick = () => {
+          const jenis = row.getAttribute('data-detail-type');
+          const id = row.getAttribute('data-detail-id');
+          if (jenis === 'masuk') openDetailSuratMasuk(id);
+          else openDetailSuratKeluar(id);
+        };
+      });
+    }
+
+    function buildChartSeries(mode) {
+      const now = new Date();
+      const series = [];
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+      if (mode === 'monthly') {
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          const countMasuk = state.surat_masuk.filter((s) => String(s.tanggal_terima || '').startsWith(key)).length;
+          const countKeluar = state.surat_keluar.filter((s) => String(s.tanggal_surat || '').startsWith(key)).length;
+          series.push({ label: monthNames[d.getMonth()], value: countMasuk + countKeluar, isPeak: false });
+        }
+      } else {
+        for (let i = 5; i >= 0; i--) {
+          const yr = String(now.getFullYear() - i);
+          const countMasuk = state.surat_masuk.filter((s) => String(s.tanggal_terima || '').startsWith(yr)).length;
+          const countKeluar = state.surat_keluar.filter((s) => String(s.tanggal_surat || '').startsWith(yr)).length;
+          series.push({ label: yr, value: countMasuk + countKeluar, isPeak: false });
+        }
+      }
+
+      let maxIdx = 0;
+      series.forEach((item, idx) => {
+        if (item.value >= series[maxIdx].value) maxIdx = idx;
+      });
+      if (series[maxIdx]) series[maxIdx].isPeak = true;
+      return series;
+    }
+
+    function renderEmptyState(title, subtitle) {
+      return `
+        <div class="py-12 px-4 text-center">
+          <div class="w-14 h-14 rounded-3xl bg-[#F6F8FB] flex items-center justify-center mx-auto mb-3 text-gray-400">
+            <i data-lucide="inbox" class="w-6 h-6"></i>
+          </div>
+          <h4 class="text-sm font-bold text-gray-900">${esc(title)}</h4>
+          <p class="text-xs text-gray-400 mt-1 max-w-sm mx-auto">${esc(subtitle)}</p>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 9. VIEW 2: SURAT MASUK (CRUD LENGKAP + FILTER + DETAIL + CETAK DISPOSISI)
+    // =========================================================================
+    function renderSuratMasukView(container) {
+      let list = filterByGlobalMonth(state.surat_masuk, 'tanggal_terima');
+      const kw = state.filters.masukSearch.toLowerCase().trim();
+      if (kw) {
+        list = list.filter((s) =>
+          [s.nomor_agenda, s.nomor_surat, s.pengirim, s.perihal, s.kode_klasifikasi].some((v) => String(v || '').toLowerCase().includes(kw))
+        );
+      }
+      if (state.filters.masukSifat !== 'Semua') {
+        list = list.filter((s) => s.sifat_surat === state.filters.masukSifat);
+      }
+      if (state.filters.masukStatus !== 'Semua') {
+        list = list.filter((s) => s.status_disposisi === state.filters.masukStatus);
+      }
+
+      container.innerHTML = `
+        <div class="bg-white rounded-[28px] p-5 sm:p-6 shadow-bento border border-gray-100/80">
+          <!-- Toolbar Filter -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
+            <div class="relative flex-1 max-w-md">
+              <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+              <input id="sm-search" type="text" value="${esc(state.filters.masukSearch)}" placeholder="Cari nomor surat, pengirim, atau perihal..."
+                class="w-full pl-11 pr-4 py-2.5 rounded-full bg-[#F6F8FB] text-xs font-medium outline-none focus:ring-2 focus:ring-gray-900/15" />
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <select id="sm-filter-sifat" class="bg-[#F6F8FB] rounded-full px-3.5 py-2.5 text-xs font-semibold text-gray-700 outline-none">
+                ${['Semua', 'Biasa', 'Penting', 'Segera', 'Rahasia'].map((o) => `<option value="${o}" ${state.filters.masukSifat === o ? 'selected' : ''}>Sifat: ${o}</option>`).join('')}
+              </select>
+              <select id="sm-filter-status" class="bg-[#F6F8FB] rounded-full px-3.5 py-2.5 text-xs font-semibold text-gray-700 outline-none">
+                ${['Semua', 'Belum', 'Diproses', 'Selesai'].map((o) => `<option value="${o}" ${state.filters.masukStatus === o ? 'selected' : ''}>Disposisi: ${o}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          ${list.length === 0 ? renderEmptyState('Belum ada data Surat Masuk', 'Tidak ditemukan data surat masuk sesuai filter. Klik tombol Catat Surat Masuk untuk menambahkan data.') : `
+            <div class="overflow-x-auto custom-scroll">
+              <table class="w-full text-left border-collapse min-w-[760px]">
+                <thead>
+                  <tr class="text-xs text-gray-400 border-b border-gray-100">
+                    <th class="pb-3 pl-3 font-medium">No. Agenda / Surat</th>
+                    <th class="pb-3 font-medium">Pengirim &amp; Perihal</th>
+                    <th class="pb-3 font-medium">Tgl Terima</th>
+                    <th class="pb-3 font-medium">Sifat</th>
+                    <th class="pb-3 font-medium">Disposisi</th>
+                    <th class="pb-3 pr-3 text-right font-medium">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-sm">
+                  ${list.map((s) => `
+                    <tr class="hover:bg-[#F6F8FB] transition-colors">
+                      <td class="py-3.5 pl-3">
+                        <div class="text-xs font-bold text-gray-900">${esc(s.nomor_agenda || '-')}</div>
+                        <div class="text-[11px] text-gray-400 font-medium">${esc(s.nomor_surat)}</div>
+                      </td>
+                      <td class="py-3.5 max-w-xs">
+                        <div class="text-xs font-bold text-gray-900 truncate">${esc(s.pengirim)}</div>
+                        <div class="text-xs text-gray-500 truncate">${esc(s.perihal)}</div>
+                      </td>
+                      <td class="py-3.5 text-xs text-gray-600 whitespace-nowrap">${formatDateIndo(s.tanggal_terima)}</td>
+                      <td class="py-3.5 whitespace-nowrap">${badgeSifat(s.sifat_surat)}</td>
+                      <td class="py-3.5 whitespace-nowrap">${badgeStatus(s.status_disposisi)}</td>
+                      <td class="py-3.5 pr-3 text-right whitespace-nowrap">
+                        <div class="inline-flex items-center gap-1.5">
+                          <button type="button" data-sm-view="${s.id}" title="Lihat Detail" class="w-8 h-8 rounded-full bg-white border border-gray-200 hover:bg-[#121212] hover:text-white flex items-center justify-center text-gray-600 transition-colors">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                          </button>
+                          <button type="button" data-sm-print="${s.id}" title="Cetak Lembar Disposisi" class="w-8 h-8 rounded-full bg-white border border-gray-200 hover:bg-[#2F7CF6] hover:text-white flex items-center justify-center text-gray-600 transition-colors">
+                            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                          </button>
+                          ${isAdmin() ? `
+                            <button type="button" data-sm-dispo="${s.id}" title="Disposisikan" class="w-8 h-8 rounded-full bg-[#D2FA3E] hover:brightness-95 flex items-center justify-center text-[#121212] transition-all">
+                              <i data-lucide="git-pull-request-arrow" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button type="button" data-sm-edit="${s.id}" title="Edit" class="w-8 h-8 rounded-full bg-white border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-600">
+                              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button type="button" data-sm-del="${s.id}" title="Hapus" class="w-8 h-8 rounded-full bg-white border border-gray-200 hover:bg-rose-50 hover:text-[#E25C5C] flex items-center justify-center text-gray-500">
+                              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                          ` : ''}
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `}
+        </div>
+      `;
+
+      // Bind Filters & Actions
+      const searchEl = document.getElementById('sm-search');
+      searchEl.oninput = (e) => { state.filters.masukSearch = e.target.value; renderSuratMasukView(container); refreshIcons(); const i = document.getElementById('sm-search'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); };
+      document.getElementById('sm-filter-sifat').onchange = (e) => { state.filters.masukSifat = e.target.value; renderApp(); };
+      document.getElementById('sm-filter-status').onchange = (e) => { state.filters.masukStatus = e.target.value; renderApp(); };
+
+      container.querySelectorAll('[data-sm-view]').forEach((b) => b.onclick = () => openDetailSuratMasuk(b.getAttribute('data-sm-view')));
+      container.querySelectorAll('[data-sm-print]').forEach((b) => b.onclick = () => printLembarDisposisi(b.getAttribute('data-sm-print')));
+      container.querySelectorAll('[data-sm-dispo]').forEach((b) => b.onclick = () => openDisposisiModal(null, b.getAttribute('data-sm-dispo')));
+      container.querySelectorAll('[data-sm-edit]').forEach((b) => b.onclick = () => openSuratMasukModal(b.getAttribute('data-sm-edit')));
+      container.querySelectorAll('[data-sm-del]').forEach((b) => b.onclick = () => {
+        const id = b.getAttribute('data-sm-del');
+        openConfirmModal('Hapus Surat Masuk', 'Apakah Anda yakin ingin menghapus arsip surat masuk ini?', async () => {
+          await dbDelete('surat_masuk', id);
+          showToast('Surat masuk berhasil dihapus.');
+        });
+      });
+    }
+
+    function openSuratMasukModal(editId = null) {
+      const existing = editId ? state.surat_masuk.find((s) => s.id === editId) : null;
+      const today = new Date().toISOString().split('T')[0];
+      const nextAgenda = 'AGD-' + String(state.surat_masuk.length + 1).padStart(3, '0');
+
+      const body = `
+        <form id="form-surat-masuk" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Nomor Agenda *</label>
+              <input name="nomor_agenda" required value="${esc(existing ? existing.nomor_agenda : nextAgenda)}" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Nomor Surat *</label>
+              <input name="nomor_surat" required value="${esc(existing ? existing.nomor_surat : '')}" placeholder="Contoh: 005/120/SETDA/2026" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Surat *</label>
+              <input name="tanggal_surat" type="date" required value="${esc(existing ? existing.tanggal_surat : today)}" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Diterima *</label>
+              <input name="tanggal_terima" type="date" required value="${esc(existing ? existing.tanggal_terima : today)}" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Asal / Pengirim Surat *</label>
+            <input name="pengirim" required value="${esc(existing ? existing.pengirim : '')}" placeholder="Nama instansi atau pengirim" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Perihal *</label>
+            <input name="perihal" required value="${esc(existing ? existing.perihal : '')}" placeholder="Ringkasan judul/perihal surat" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Kode Klasifikasi</label>
+              <select name="kode_klasifikasi" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">
+                <option value="">-- Pilih Kode --</option>
+                ${state.klasifikasi.map((k) => `<option value="${esc(k.kode)}" ${existing && existing.kode_klasifikasi === k.kode ? 'selected' : ''}>${esc(k.kode)} - ${esc(k.nama)}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Sifat Surat</label>
+              <select name="sifat_surat" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">
+                ${['Biasa', 'Penting', 'Segera', 'Rahasia'].map((s) => `<option value="${s}" ${existing && existing.sifat_surat === s ? 'selected' : ''}>${s}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Status Disposisi</label>
+              <select name="status_disposisi" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">
+                ${['Belum', 'Diproses', 'Selesai'].map((st) => `<option value="${st}" ${existing && existing.status_disposisi === st ? 'selected' : ''}>${st}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Tautan Berkas Digital (Google Drive / Cloud URL)</label>
+            <input name="tautan_berkas" type="url" value="${esc(existing ? existing.tautan_berkas : '')}" placeholder="https://drive.google.com/..." class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Isi Ringkas / Catatan</label>
+            <textarea name="ringkasan" rows="3" placeholder="Uraian singkat isi surat..." class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15">${esc(existing ? existing.ringkasan : '')}</textarea>
+          </div>
+        </form>
+      `;
+
+      const footer = `
+        <button type="button" id="btn-cancel-sm" class="px-4 py-2.5 rounded-full text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50">Batal</button>
+        <button type="submit" form="form-surat-masuk" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#121212] text-white hover:bg-neutral-800 flex items-center gap-1.5">
+          <i data-lucide="save" class="w-3.5 h-3.5 text-[#D2FA3E]"></i>
+          <span>${existing ? 'Simpan Perubahan' : 'Simpan Surat Masuk'}</span>
+        </button>
+      `;
+
+      openModal(existing ? 'Edit Surat Masuk' : 'Catat Surat Masuk Baru', body, footer);
+      document.getElementById('btn-cancel-sm').onclick = closeModal;
+      document.getElementById('form-surat-masuk').onsubmit = async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const payload = Object.fromEntries(fd.entries());
+        try {
+          if (existing) {
+            await dbUpdate('surat_masuk', existing.id, payload);
+            showToast('Surat masuk berhasil diperbarui.');
+          } else {
+            await dbCreate('surat_masuk', payload);
+            showToast('Surat masuk baru berhasil dicatat.');
+          }
+          closeModal();
+        } catch (err) {
+          showToast('Gagal menyimpan: ' + err.message, 'error');
+        }
+      };
+    }
+
+    function openDetailSuratMasuk(id) {
+      const s = state.surat_masuk.find((x) => x.id === id);
+      if (!s) return;
+      const relatedDispo = state.disposisi.filter((d) => d.surat_masuk_id === id);
+
+      const body = `
+        <div class="space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-[#F6F8FB] p-4 rounded-2xl">
+            <div>
+              <div class="text-[11px] text-gray-400 font-semibold uppercase">Nomor Surat</div>
+              <div class="text-sm font-bold text-gray-900">${esc(s.nomor_surat)}</div>
+              <div class="text-xs text-gray-500">Agenda: ${esc(s.nomor_agenda || '-')} • Klasifikasi: ${esc(s.kode_klasifikasi || '-')}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              ${badgeSifat(s.sifat_surat)}
+              ${badgeStatus(s.status_disposisi)}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-3.5 rounded-2xl border border-gray-100">
+              <div class="text-gray-400 mb-0.5">Pengirim</div>
+              <div class="font-bold text-gray-900">${esc(s.pengirim)}</div>
+            </div>
+            <div class="p-3.5 rounded-2xl border border-gray-100">
+              <div class="text-gray-400 mb-0.5">Tanggal Surat / Diterima</div>
+              <div class="font-bold text-gray-900">${formatDateIndo(s.tanggal_surat)} / ${formatDateIndo(s.tanggal_terima)}</div>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl border border-gray-100 text-xs">
+            <div class="text-gray-400 mb-1">Perihal</div>
+            <div class="font-bold text-sm text-gray-900 mb-2">${esc(s.perihal)}</div>
+            <div class="text-gray-600 leading-relaxed">${esc(s.ringkasan || 'Tidak ada ringkasan tambahan.')}</div>
+          </div>
+
+          ${s.tautan_berkas ? `
+            <a href="${esc(s.tautan_berkas)}" target="_blank" rel="noopener noreferrer"
+              class="flex items-center justify-between p-3.5 rounded-2xl bg-blue-50 text-[#2F7CF6] hover:bg-blue-100 transition-colors text-xs font-semibold">
+              <span class="flex items-center gap-2"><i data-lucide="external-link" class="w-4 h-4"></i> Buka Lampiran Berkas Digital</span>
+              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </a>
+          ` : ''}
+
+          <div>
+            <h4 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Riwayat Disposisi (${relatedDispo.length})</h4>
+            ${relatedDispo.length === 0 ? `<p class="text-xs text-gray-400">Belum ada lembar disposisi untuk surat ini.</p>` : `
+              <div class="space-y-2">
+                ${relatedDispo.map((d) => `
+                  <div class="p-3 rounded-2xl bg-[#F6F8FB] text-xs">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="font-bold text-gray-900">Kepada: ${esc(d.tujuan_nama)}</span>
+                      ${badgeStatus(d.status)}
+                    </div>
+                    <p class="text-gray-600">${esc(d.instruksi)}</p>
+                    ${d.catatan_tindak_lanjut ? `<p class="text-[11px] text-emerald-700 mt-1 font-medium">Tindak lanjut: ${esc(d.catatan_tindak_lanjut)}</p>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+
+      const footer = `
+        <button type="button" id="btn-det-print" class="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#F6F8FB] text-gray-800 hover:bg-gray-200 flex items-center gap-1.5">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Disposisi
+        </button>
+        ${isAdmin() ? `
+          <button type="button" id="btn-det-dispo" class="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#D2FA3E] text-[#121212] hover:brightness-95 flex items-center gap-1.5">
+            <i data-lucide="git-pull-request-arrow" class="w-3.5 h-3.5"></i> Buat Disposisi
+          </button>
+        ` : ''}
+      `;
+
+      openModal('Detail Surat Masuk', body, footer);
+      document.getElementById('btn-det-print').onclick = () => { closeModal(); printLembarDisposisi(s.id); };
+      if (isAdmin()) {
+        document.getElementById('btn-det-dispo').onclick = () => openDisposisiModal(null, s.id);
+      }
+    }
+
+    // =========================================================================
+    // 10. VIEW 3: SURAT KELUAR (CRUD + GENERATOR NOMOR SURAT)
+    // =========================================================================
+    function renderSuratKeluarView(container) {
+      let list = filterByGlobalMonth(state.surat_keluar, 'tanggal_surat');
+      const kw = state.filters.keluarSearch.toLowerCase().trim();
+      if (kw) {
+        list = list.filter((s) =>
+          [s.nomor_surat, s.tujuan, s.perihal, s.kode_klasifikasi].some((v) => String(v || '').toLowerCase().includes(kw))
+        );
+      }
+      if (state.filters.keluarSifat !== 'Semua') {
+        list = list.filter((s) => s.sifat_surat === state.filters.keluarSifat);
+      }
+      if (state.filters.keluarStatus !== 'Semua') {
+        list = list.filter((s) => s.status === state.filters.keluarStatus);
+      }
+
+      container.innerHTML = `
+        <div class="bg-white rounded-[28px] p-5 sm:p-6 shadow-bento border border-gray-100/80">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
+            <div class="relative flex-1 max-w-md">
+              <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+              <input id="sk-search" type="text" value="${esc(state.filters.keluarSearch)}" placeholder="Cari nomor surat, tujuan, atau perihal..."
+                class="w-full pl-11 pr-4 py-2.5 rounded-full bg-[#F6F8FB] text-xs font-medium outline-none focus:ring-2 focus:ring-gray-900/15" />
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <select id="sk-filter-sifat" class="bg-[#F6F8FB] rounded-full px-3.5 py-2.5 text-xs font-semibold text-gray-700 outline-none">
+                ${['Semua', 'Biasa', 'Penting', 'Segera', 'Rahasia'].map((o) => `<option value="${o}" ${state.filters.keluarSifat === o ? 'selected' : ''}>Sifat: ${o}</option>`).join('')}
+              </select>
+              <select id="sk-filter-status" class="bg-[#F6F8FB] rounded-full px-3.5 py-2.5 text-xs font-semibold text-gray-700 outline-none">
+                ${['Semua', 'Draft', 'Proses', 'Terkirim'].map((o) => `<option value="${o}" ${state.filters.keluarStatus === o ? 'selected' : ''}>Status: ${o}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          ${list.length === 0 ? renderEmptyState('Belum ada data Surat Keluar', 'Data surat keluar masih kosong atau tidak sesuai filter.') : `
+            <div class="overflow-x-auto custom-scroll">
+              <table class="w-full text-left border-collapse min-w-[740px]">
+                <thead>
+                  <tr class="text-xs text-gray-400 border-b border-gray-100">
+                    <th class="pb-3 pl-3 font-medium">Nomor Surat</th>
+                    <th class="pb-3 font-medium">Tujuan &amp; Perihal</th>
+                    <th class="pb-3 font-medium">Tanggal</th>
+                    <th class="pb-3 font-medium">Sifat</th>
+                    <th class="pb-3 font-medium">Status</th>
+                    <th class="pb-3 pr-3 text-right font-medium">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-sm">
+                  ${list.map((s) => `
+                    <tr class="hover:bg-[#F6F8FB] transition-colors">
+                      <td class="py-3.5 pl-3">
+                        <div class="text-xs font-bold text-gray-900">${esc(s.nomor_surat)}</div>
+                        <div class="text-[11px] text-gray-400">Kode: ${esc(s.kode_klasifikasi || '-')}</div>
+                      </td>
+                      <td class="py-3.5 max-w-xs">
+                        <div class="text-xs font-bold text-gray-900 truncate">${esc(s.tujuan)}</div>
+                        <div class="text-xs text-gray-500 truncate">${esc(s.perihal)}</div>
+                      </td>
+                      <td class="py-3.5 text-xs text-gray-600 whitespace-nowrap">${formatDateIndo(s.tanggal_surat)}</td>
+                      <td class="py-3.5 whitespace-nowrap">${badgeSifat(s.sifat_surat)}</td>
+                      <td class="py-3.5 whitespace-nowrap">${badgeStatus(s.status)}</td>
+                      <td class="py-3.5 pr-3 text-right whitespace-nowrap">
+                        <div class="inline-flex items-center gap-1.5">
+                          <button type="button" data-sk-view="${s.id}" title="Lihat Detail" class="w-8 h-8 rounded-full bg-white border border-gray-200 hover:bg-[#121212] hover:text-white flex items-center justify-center text-gray-600 transition-colors">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                          </button>
+                          ${isAdmin() ? `
+                            <button type="button" data-sk-edit="${s.id}" title="Edit" class="w-8 h-8 rounded-full bg-white border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-600">
+                              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button type="button" data-sk-del="${s.id}" title="Hapus" class="w-8 h-8 rounded-full bg-white border border-gray-200 hover:bg-rose-50 hover:text-[#E25C5C] flex items-center justify-center text-gray-500">
+                              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                          ` : ''}
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `}
+        </div>
+      `;
+
+      const searchEl = document.getElementById('sk-search');
+      searchEl.oninput = (e) => { state.filters.keluarSearch = e.target.value; renderSuratKeluarView(container); refreshIcons(); const i = document.getElementById('sk-search'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); };
+      document.getElementById('sk-filter-sifat').onchange = (e) => { state.filters.keluarSifat = e.target.value; renderApp(); };
+      document.getElementById('sk-filter-status').onchange = (e) => { state.filters.keluarStatus = e.target.value; renderApp(); };
+
+      container.querySelectorAll('[data-sk-view]').forEach((b) => b.onclick = () => openDetailSuratKeluar(b.getAttribute('data-sk-view')));
+      container.querySelectorAll('[data-sk-edit]').forEach((b) => b.onclick = () => openSuratKeluarModal(b.getAttribute('data-sk-edit')));
+      container.querySelectorAll('[data-sk-del]').forEach((b) => b.onclick = () => {
+        const id = b.getAttribute('data-sk-del');
+        openConfirmModal('Hapus Surat Keluar', 'Apakah Anda yakin ingin menghapus data surat keluar ini?', async () => {
+          await dbDelete('surat_keluar', id);
+          showToast('Surat keluar berhasil dihapus.');
+        });
+      });
+    }
+
+    function openSuratKeluarModal(editId = null) {
+      const existing = editId ? state.surat_keluar.find((s) => s.id === editId) : null;
+      const today = new Date().toISOString().split('T')[0];
+
+      const body = `
+        <form id="form-surat-keluar" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Kode Klasifikasi</label>
+              <select id="sk-kode-select" name="kode_klasifikasi" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">
+                <option value="001">001 - Umum</option>
+                ${state.klasifikasi.map((k) => `<option value="${esc(k.kode)}" ${existing && existing.kode_klasifikasi === k.kode ? 'selected' : ''}>${esc(k.kode)} - ${esc(k.nama)}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Surat *</label>
+              <input id="sk-tgl-input" name="tanggal_surat" type="date" required value="${esc(existing ? existing.tanggal_surat : today)}" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-semibold text-gray-600">Nomor Surat Keluar *</label>
+              <button type="button" id="btn-gen-nomor" class="text-[11px] font-bold text-[#2F7CF6] hover:underline flex items-center gap-1">
+                <i data-lucide="sparkles" class="w-3 h-3"></i> Generate Otomatis
+              </button>
+            </div>
+            <input id="sk-nomor-input" name="nomor_surat" required value="${esc(existing ? existing.nomor_surat : '')}" placeholder="Contoh: 001/005/INST/XI/2026" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm font-medium outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Tujuan Surat *</label>
+            <input name="tujuan" required value="${esc(existing ? existing.tujuan : '')}" placeholder="Nama instansi / penerima surat" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Perihal *</label>
+            <input name="perihal" required value="${esc(existing ? existing.perihal : '')}" placeholder="Judul atau perihal surat keluar" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Sifat Surat</label>
+              <select name="sifat_surat" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">
+                ${['Biasa', 'Penting', 'Segera', 'Rahasia'].map((s) => `<option value="${s}" ${existing && existing.sifat_surat === s ? 'selected' : ''}>${s}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Status Surat</label>
+              <select name="status" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">
+                ${['Draft', 'Proses', 'Terkirim'].map((st) => `<option value="${st}" ${existing && existing.status === st ? 'selected' : ''}>${st}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Tautan Arsip Digital (URL)</label>
+            <input name="tautan_berkas" type="url" value="${esc(existing ? existing.tautan_berkas : '')}" placeholder="https://drive.google.com/..." class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Keterangan</label>
+            <textarea name="keterangan" rows="2" placeholder="Catatan tambahan pengiriman..." class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">${esc(existing ? existing.keterangan : '')}</textarea>
+          </div>
+        </form>
+      `;
+
+      const footer = `
+        <button type="button" id="btn-cancel-sk" class="px-4 py-2.5 rounded-full text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50">Batal</button>
+        <button type="submit" form="form-surat-keluar" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#121212] text-white hover:bg-neutral-800 flex items-center gap-1.5">
+          <i data-lucide="save" class="w-3.5 h-3.5 text-[#D2FA3E]"></i>
+          <span>${existing ? 'Simpan Perubahan' : 'Simpan Surat Keluar'}</span>
+        </button>
+      `;
+
+      openModal(existing ? 'Edit Surat Keluar' : 'Buat Surat Keluar Baru', body, footer);
+      document.getElementById('btn-cancel-sk').onclick = closeModal;
+
+      document.getElementById('btn-gen-nomor').onclick = () => {
+        const kode = document.getElementById('sk-kode-select').value || '001';
+        const tglVal = document.getElementById('sk-tgl-input').value || today;
+        const d = new Date(tglVal);
+        const urut = String(state.surat_keluar.length + 1).padStart(3, '0');
+        const prefix = (state.instansi.prefix_nomor_keluar || 'INST').toUpperCase();
+        const romawi = getRomanMonth(d.getMonth() + 1);
+        document.getElementById('sk-nomor-input').value = `${urut}/${kode}/${prefix}/${romawi}/${d.getFullYear()}`;
+      };
+
+      document.getElementById('form-surat-keluar').onsubmit = async (e) => {
+        e.preventDefault();
+        const payload = Object.fromEntries(new FormData(e.target).entries());
+        try {
+          if (existing) {
+            await dbUpdate('surat_keluar', existing.id, payload);
+            showToast('Surat keluar berhasil diperbarui.');
+          } else {
+            await dbCreate('surat_keluar', payload);
+            showToast('Surat keluar baru berhasil disimpan.');
+          }
+          closeModal();
+        } catch (err) {
+          showToast('Gagal menyimpan: ' + err.message, 'error');
+        }
+      };
+    }
+
+    function openDetailSuratKeluar(id) {
+      const s = state.surat_keluar.find((x) => x.id === id);
+      if (!s) return;
+      const body = `
+        <div class="space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-[#F6F8FB] p-4 rounded-2xl">
+            <div>
+              <div class="text-[11px] text-gray-400 font-semibold uppercase">Nomor Surat Keluar</div>
+              <div class="text-sm font-bold text-gray-900">${esc(s.nomor_surat)}</div>
+              <div class="text-xs text-gray-500">Klasifikasi: ${esc(s.kode_klasifikasi || '-')}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              ${badgeSifat(s.sifat_surat)}
+              ${badgeStatus(s.status)}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-3.5 rounded-2xl border border-gray-100">
+              <div class="text-gray-400 mb-0.5">Tujuan</div>
+              <div class="font-bold text-gray-900">${esc(s.tujuan)}</div>
+            </div>
+            <div class="p-3.5 rounded-2xl border border-gray-100">
+              <div class="text-gray-400 mb-0.5">Tanggal Surat</div>
+              <div class="font-bold text-gray-900">${formatDateIndo(s.tanggal_surat)}</div>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl border border-gray-100 text-xs">
+            <div class="text-gray-400 mb-1">Perihal</div>
+            <div class="font-bold text-sm text-gray-900 mb-2">${esc(s.perihal)}</div>
+            <div class="text-gray-600 leading-relaxed">${esc(s.keterangan || 'Tidak ada keterangan tambahan.')}</div>
+          </div>
+
+          ${s.tautan_berkas ? `
+            <a href="${esc(s.tautan_berkas)}" target="_blank" rel="noopener noreferrer"
+              class="flex items-center justify-between p-3.5 rounded-2xl bg-blue-50 text-[#2F7CF6] hover:bg-blue-100 transition-colors text-xs font-semibold">
+              <span class="flex items-center gap-2"><i data-lucide="external-link" class="w-4 h-4"></i> Buka Arsip Berkas Digital</span>
+              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </a>
+          ` : ''}
+        </div>
+      `;
+      openModal('Detail Surat Keluar', body);
+    }
+
+    // =========================================================================
+    // 11. VIEW 4: DISPOSISI (INSTRUKSI ADMIN & TINDAK LANJUT STAF/PIMPINAN)
+    // =========================================================================
+    function renderDisposisiView(container) {
+      let list = isAdmin()
+        ? [...state.disposisi]
+        : state.disposisi.filter((d) => d.tujuan_user_id === state.currentUser.id);
+
+      if (state.filters.disposisiStatus !== 'Semua') {
+        list = list.filter((d) => d.status === state.filters.disposisiStatus);
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <!-- Pill Filter Bar -->
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="bg-white p-1.5 rounded-full inline-flex items-center gap-1 shadow-sm border border-gray-100">
+              ${['Semua', 'Menunggu', 'Diproses', 'Selesai'].map((st) => `
+                <button type="button" data-dp-filter="${st}"
+                  class="px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    state.filters.disposisiStatus === st ? 'bg-[#121212] text-white' : 'text-gray-500 hover:text-gray-900'
+                  }">${st}</button>
+              `).join('')}
+            </div>
+            <span class="text-xs font-medium text-gray-400">Menampilkan ${list.length} tugas disposisi</span>
+          </div>
+
+          ${list.length === 0 ? `<div class="bg-white rounded-[28px] p-6 shadow-bento">${renderEmptyState('Belum ada disposisi', isAdmin() ? 'Klik tombol Buat Disposisi Baru untuk meneruskan instruksi surat masuk ke staf.' : 'Belum ada disposisi yang ditugaskan kepada Anda saat ini.')}</div>` : `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${list.map((d) => `
+                <div class="bg-white rounded-[28px] p-5 sm:p-6 shadow-bento border border-gray-100/80 flex flex-col justify-between gap-4">
+                  <div>
+                    <div class="flex items-start justify-between gap-2 mb-3">
+                      <div>
+                        <span class="text-[11px] font-bold text-[#2F7CF6] bg-blue-50 px-2.5 py-1 rounded-full">${esc(d.nomor_surat)}</span>
+                        <h4 class="text-sm font-bold text-gray-900 mt-2 leading-snug">${esc(d.perihal_surat)}</h4>
+                      </div>
+                      ${badgeStatus(d.status)}
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-[#F6F8FB] text-xs text-gray-700 leading-relaxed mb-3">
+                      <span class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Instruksi Disposisi</span>
+                      ${esc(d.instruksi)}
+                    </div>
+
+                    ${d.catatan_tindak_lanjut ? `
+                      <div class="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-xs text-emerald-800 mb-3">
+                        <span class="block text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-0.5">Catatan Tindak Lanjut</span>
+                        ${esc(d.catatan_tindak_lanjut)}
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <div class="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 text-xs text-gray-500">
+                      <div class="w-7 h-7 rounded-full bg-[#121212] text-[#D2FA3E] text-[10px] font-bold flex items-center justify-center">
+                        ${getInitials(d.tujuan_nama)}
+                      </div>
+                      <div>
+                        <div class="font-semibold text-gray-900">${esc(d.tujuan_nama)}</div>
+                        <div class="text-[10px] text-gray-400">Batas: ${formatDateIndo(d.batas_waktu)}</div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                      <button type="button" data-dp-update="${d.id}"
+                        class="px-3.5 py-2 rounded-full bg-[#D2FA3E] hover:brightness-95 text-[#121212] text-xs font-bold transition-all">
+                        Tindak Lanjut
+                      </button>
+                      <button type="button" data-dp-print="${d.surat_masuk_id}" title="Cetak Lembar Disposisi"
+                        class="w-8 h-8 rounded-full bg-[#F6F8FB] hover:bg-gray-200 flex items-center justify-center text-gray-700">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                      </button>
+                      ${isAdmin() ? `
+                        <button type="button" data-dp-del="${d.id}" title="Hapus Disposisi"
+                          class="w-8 h-8 rounded-full bg-[#F6F8FB] hover:bg-rose-50 hover:text-[#E25C5C] flex items-center justify-center text-gray-500">
+                          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                      ` : ''}
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `}
+        </div>
+      `;
+
+      container.querySelectorAll('[data-dp-filter]').forEach((b) => {
+        b.onclick = () => { state.filters.disposisiStatus = b.getAttribute('data-dp-filter'); renderApp(); };
+      });
+      container.querySelectorAll('[data-dp-update]').forEach((b) => {
+        b.onclick = () => openTindakLanjutModal(b.getAttribute('data-dp-update'));
+      });
+      container.querySelectorAll('[data-dp-print]').forEach((b) => {
+        b.onclick = () => printLembarDisposisi(b.getAttribute('data-dp-print'));
+      });
+      container.querySelectorAll('[data-dp-del]').forEach((b) => {
+        b.onclick = () => {
+          const id = b.getAttribute('data-dp-del');
+          openConfirmModal('Hapus Disposisi', 'Hapus catatan disposisi ini dari daftar?', async () => {
+            await dbDelete('disposisi', id);
+            showToast('Disposisi dihapus.');
+          });
+        };
+      });
+    }
+
+    function openDisposisiModal(editId = null, preselectSuratId = null) {
+      if (state.surat_masuk.length === 0) {
+        showToast('Catat Surat Masuk terlebih dahulu sebelum membuat disposisi.', 'info');
+        return;
+      }
+      const activeUsers = state.users.filter((u) => u.status_aktif !== false);
+      if (activeUsers.length === 0) {
+        showToast('Tambahkan akun Staf/Pimpinan di menu Master terlebih dahulu.', 'info');
+        return;
+      }
+
+      const todayPlus7 = new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0];
+
+      const body = `
+        <form id="form-disposisi" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Pilih Surat Masuk *</label>
+            <select name="surat_masuk_id" required class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">
+              ${state.surat_masuk.map((s) => `<option value="${s.id}" ${preselectSuratId === s.id ? 'selected' : ''}>${esc(s.nomor_surat)} — ${esc(s.perihal)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Diteruskan Kepada (Staf/Pimpinan) *</label>
+              <select name="tujuan_user_id" required class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">
+                ${activeUsers.map((u) => `<option value="${u.id}">${esc(u.nama_lengkap)} (${esc(u.jabatan || u.role)})</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Batas Waktu *</label>
+              <input name="batas_waktu" type="date" required value="${todayPlus7}" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Instruksi / Isi Disposisi *</label>
+            <textarea name="instruksi" required rows="3" placeholder="Contoh: Mohon segera ditindaklanjuti dan laporkan hasilnya..." class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15"></textarea>
+          </div>
+        </form>
+      `;
+
+      const footer = `
+        <button type="button" id="btn-cancel-dp" class="px-4 py-2.5 rounded-full text-xs font-semibold text-gray-600 bg-white border border-gray-200">Batal</button>
+        <button type="submit" form="form-disposisi" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#121212] text-white flex items-center gap-1.5">
+          <i data-lucide="send" class="w-3.5 h-3.5 text-[#D2FA3E]"></i> Terbitkan Disposisi
+        </button>
+      `;
+
+      openModal('Buat Lembar Disposisi', body, footer);
+      document.getElementById('btn-cancel-dp').onclick = closeModal;
+      document.getElementById('form-disposisi').onsubmit = async (e) => {
+        e.preventDefault();
+        const fd = Object.fromEntries(new FormData(e.target).entries());
+        const surat = state.surat_masuk.find((s) => s.id === fd.surat_masuk_id);
+        const user = state.users.find((u) => u.id === fd.tujuan_user_id);
+
+        const payload = {
+          surat_masuk_id: fd.surat_masuk_id,
+          nomor_surat: surat ? surat.nomor_surat : '-',
+          perihal_surat: surat ? surat.perihal : '-',
+          tujuan_user_id: fd.tujuan_user_id,
+          tujuan_nama: user ? user.nama_lengkap : '-',
+          instruksi: fd.instruksi,
+          batas_waktu: fd.batas_waktu,
+          status: 'Menunggu',
+          catatan_tindak_lanjut: ''
+        };
+
+        try {
+          await dbCreate('disposisi', payload);
+          if (surat) {
+            await dbUpdate('surat_masuk', surat.id, { status_disposisi: 'Diproses' });
+          }
+          showToast('Disposisi berhasil diterbitkan.');
+          closeModal();
+        } catch (err) {
+          showToast('Gagal menerbitkan disposisi: ' + err.message, 'error');
+        }
+      };
+    }
+
+    function openTindakLanjutModal(disposisiId) {
+      const d = state.disposisi.find((x) => x.id === disposisiId);
+      if (!d) return;
+
+      const body = `
+        <form id="form-tindak-lanjut" class="space-y-4">
+          <div class="p-4 rounded-2xl bg-[#F6F8FB] text-xs">
+            <div class="font-bold text-gray-900">${esc(d.nomor_surat)} — ${esc(d.perihal_surat)}</div>
+            <div class="text-gray-500 mt-1">Instruksi: ${esc(d.instruksi)}</div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Status Pengerjaan</label>
+            <select name="status" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none font-semibold">
+              ${['Menunggu', 'Diproses', 'Selesai'].map((st) => `<option value="${st}" ${d.status === st ? 'selected' : ''}>${st}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Catatan Tindak Lanjut</label>
+            <textarea name="catatan_tindak_lanjut" rows="3" placeholder="Tuliskan progres atau hasil penyelesaian disposisi..." class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15">${esc(d.catatan_tindak_lanjut || '')}</textarea>
+          </div>
+        </form>
+      `;
+
+      const footer = `
+        <button type="button" id="btn-cancel-tl" class="px-4 py-2.5 rounded-full text-xs font-semibold text-gray-600 bg-white border border-gray-200">Batal</button>
+        <button type="submit" form="form-tindak-lanjut" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#121212] text-white flex items-center gap-1.5">
+          <i data-lucide="check" class="w-3.5 h-3.5 text-[#D2FA3E]"></i> Simpan Progres
+        </button>
+      `;
+
+      openModal('Update Tindak Lanjut Disposisi', body, footer);
+      document.getElementById('btn-cancel-tl').onclick = closeModal;
+      document.getElementById('form-tindak-lanjut').onsubmit = async (e) => {
+        e.preventDefault();
+        const fd = Object.fromEntries(new FormData(e.target).entries());
+        try {
+          await dbUpdate('disposisi', d.id, {
+            status: fd.status,
+            catatan_tindak_lanjut: fd.catatan_tindak_lanjut
+          });
+          // Sinkronkan status surat masuk terkait
+          if (d.surat_masuk_id) {
+            const newSuratStatus = fd.status === 'Selesai' ? 'Selesai' : 'Diproses';
+            await dbUpdate('surat_masuk', d.surat_masuk_id, { status_disposisi: newSuratStatus });
+          }
+          showToast('Status tindak lanjut disposisi diperbarui.');
+          closeModal();
+        } catch (err) {
+          showToast('Gagal memperbarui disposisi: ' + err.message, 'error');
+        }
+      };
+    }
+
+    // =========================================================================
+    // 12. VIEW 5: MASTER & PENGATURAN (KHUSUS ADMIN)
+    // =========================================================================
+    function renderPengaturanView(container) {
+      const tabs = [
+        { id: 'users', label: 'Manajemen Staf / User', icon: 'users' },
+        { id: 'klasifikasi', label: 'Kode Klasifikasi', icon: 'tags' },
+        { id: 'instansi', label: 'Profil Instansi', icon: 'building-2' }
+      ];
+
+      let tabBody = '';
+      if (state.settingsTab === 'users') {
+        tabBody = state.users.length === 0
+          ? renderEmptyState('Belum ada akun Staf/Pimpinan', 'Tambahkan akun staf agar mereka dapat login menggunakan Username & Password dari koleksi Firestore.')
+          : `
+            <div class="overflow-x-auto custom-scroll">
+              <table class="w-full text-left border-collapse min-w-[650px]">
+                <thead>
+                  <tr class="text-xs text-gray-400 border-b border-gray-100">
+                    <th class="pb-3 pl-3 font-medium">Nama Lengkap</th>
+                    <th class="pb-3 font-medium">Username</th>
+                    <th class="pb-3 font-medium">Jabatan &amp; Unit</th>
+                    <th class="pb-3 font-medium">Peran</th>
+                    <th class="pb-3 font-medium">Status</th>
+                    <th class="pb-3 pr-3 text-right font-medium">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-xs">
+                  ${state.users.map((u) => `
+                    <tr class="hover:bg-[#F6F8FB]">
+                      <td class="py-3.5 pl-3 font-bold text-gray-900 flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-[#121212] text-[#D2FA3E] text-[11px] font-bold flex items-center justify-center">${getInitials(u.nama_lengkap)}</div>
+                        <span>${esc(u.nama_lengkap)}</span>
+                      </td>
+                      <td class="py-3.5 font-mono text-gray-600">${esc(u.username)}</td>
+                      <td class="py-3.5 text-gray-600">${esc(u.jabatan || '-')} • <span class="text-gray-400">${esc(u.unit_kerja || '-')}</span></td>
+                      <td class="py-3.5"><span class="px-2.5 py-1 rounded-full bg-[#F6F8FB] font-semibold text-gray-700">${esc(u.role || 'Staf')}</span></td>
+                      <td class="py-3.5">${u.status_aktif !== false ? badgeStatus('Selesai').replace('Selesai', 'Aktif') : badgeStatus('Draft').replace('Draft', 'Nonaktif')}</td>
+                      <td class="py-3.5 pr-3 text-right whitespace-nowrap">
+                        <button type="button" data-u-edit="${u.id}" class="w-8 h-8 rounded-full bg-white border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600 mr-1">
+                          <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <button type="button" data-u-del="${u.id}" class="w-8 h-8 rounded-full bg-white border border-gray-200 hover:bg-rose-50 hover:text-[#E25C5C] inline-flex items-center justify-center text-gray-500">
+                          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+      } else if (state.settingsTab === 'klasifikasi') {
+        tabBody = state.klasifikasi.length === 0
+          ? renderEmptyState('Belum ada Kode Klasifikasi', 'Tambahkan kode klasifikasi (misal: 005 Undangan, 800 Kepegawaian) untuk mempermudah penomoran surat.')
+          : `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              ${state.klasifikasi.map((k) => `
+                <div class="p-4 rounded-2xl bg-[#F6F8FB] flex items-start justify-between gap-3">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="px-2.5 py-0.5 rounded-full bg-[#121212] text-[#D2FA3E] text-xs font-bold">${esc(k.kode)}</span>
+                      <span class="text-sm font-bold text-gray-900">${esc(k.nama)}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1.5">${esc(k.keterangan || '-')}</p>
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" data-k-edit="${k.id}" class="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                    <button type="button" data-k-del="${k.id}" class="w-8 h-8 rounded-full bg-white hover:bg-rose-50 hover:text-[#E25C5C] flex items-center justify-center text-gray-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+      } else {
+        tabBody = `
+          <form id="form-instansi" class="max-w-xl space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Instansi / Lembaga</label>
+              <input name="nama_instansi" required value="${esc(state.instansi.nama_instansi)}" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Alamat Lengkap (Untuk Kop Cetak Disposisi)</label>
+              <textarea name="alamat" rows="2" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15">${esc(state.instansi.alamat)}</textarea>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Kode Singkatan Instansi (Prefix Nomor Surat Keluar)</label>
+              <input name="prefix_nomor_keluar" required value="${esc(state.instansi.prefix_nomor_keluar)}" placeholder="Contoh: DISKOMINFO / PT-ABC" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm font-mono uppercase outline-none" />
+            </div>
+            <button type="submit" class="px-6 py-3 rounded-full bg-[#121212] text-white text-xs font-semibold hover:bg-neutral-800 inline-flex items-center gap-2">
+              <i data-lucide="save" class="w-4 h-4 text-[#D2FA3E]"></i> Simpan Profil Instansi
+            </button>
+          </form>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex flex-wrap items-center gap-2">
+            ${tabs.map((t) => `
+              <button type="button" data-set-tab="${t.id}"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold transition-all ${
+                  state.settingsTab === t.id ? 'bg-[#121212] text-white shadow-sm' : 'bg-white text-gray-600 hover:text-gray-900 border border-gray-100'
+                }">
+                <i data-lucide="${t.icon}" class="w-3.5 h-3.5 ${state.settingsTab === t.id ? 'text-[#D2FA3E]' : ''}"></i>
+                <span>${t.label}</span>
+              </button>
+            `).join('')}
+          </div>
+
+          <div class="bg-white rounded-[28px] p-5 sm:p-6 shadow-bento border border-gray-100/80">
+            ${tabBody}
+          </div>
+        </div>
+      `;
+
+      container.querySelectorAll('[data-set-tab]').forEach((b) => {
+        b.onclick = () => { state.settingsTab = b.getAttribute('data-set-tab'); renderApp(); };
+      });
+
+      if (state.settingsTab === 'users') {
+        container.querySelectorAll('[data-u-edit]').forEach((b) => b.onclick = () => openUserModal(b.getAttribute('data-u-edit')));
+        container.querySelectorAll('[data-u-del]').forEach((b) => b.onclick = () => {
+          const id = b.getAttribute('data-u-del');
+          openConfirmModal('Hapus Akun Staf', 'Hapus akun staf ini? Pengguna tidak akan bisa login lagi.', async () => {
+            await dbDelete('users', id);
+            showToast('Akun staf dihapus.');
+          });
+        });
+      } else if (state.settingsTab === 'klasifikasi') {
+        container.querySelectorAll('[data-k-edit]').forEach((b) => b.onclick = () => openKlasifikasiModal(b.getAttribute('data-k-edit')));
+        container.querySelectorAll('[data-k-del]').forEach((b) => b.onclick = () => {
+          const id = b.getAttribute('data-k-del');
+          openConfirmModal('Hapus Kode Klasifikasi', 'Hapus kode klasifikasi ini dari daftar master?', async () => {
+            await dbDelete('klasifikasi', id);
+            showToast('Kode klasifikasi dihapus.');
+          });
+        });
+      } else {
+        document.getElementById('form-instansi').onsubmit = async (e) => {
+          e.preventDefault();
+          const payload = Object.fromEntries(new FormData(e.target).entries());
+          try {
+            await dbSaveInstansi(payload);
+            showToast('Profil instansi berhasil diperbarui.');
+          } catch (err) {
+            showToast('Gagal menyimpan profil: ' + err.message, 'error');
+          }
+        };
+      }
+    }
+
+    function openUserModal(editId = null) {
+      const existing = editId ? state.users.find((u) => u.id === editId) : null;
+      const body = `
+        <form id="form-user" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Lengkap *</label>
+              <input name="nama_lengkap" required value="${esc(existing ? existing.nama_lengkap : '')}" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Username Login *</label>
+              <input name="username" required value="${esc(existing ? existing.username : '')}" placeholder="tanpa spasi, misal: andi.staf" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm font-mono outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Kata Sandi *</label>
+              <input name="password" required value="${esc(existing ? existing.password : '')}" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Peran</label>
+              <select name="role" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">
+                <option value="Staf" ${existing && existing.role === 'Staf' ? 'selected' : ''}>Staf</option>
+                <option value="Pimpinan" ${existing && existing.role === 'Pimpinan' ? 'selected' : ''}>Pimpinan</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Jabatan</label>
+              <input name="jabatan" value="${esc(existing ? existing.jabatan : '')}" placeholder="Contoh: Analis Arsip" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Unit Kerja</label>
+              <input name="unit_kerja" value="${esc(existing ? existing.unit_kerja : '')}" placeholder="Contoh: Subbag Umum" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none" />
+            </div>
+          </div>
+          <label class="inline-flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer">
+            <input type="checkbox" name="status_aktif" ${!existing || existing.status_aktif !== false ? 'checked' : ''} class="w-4 h-4 rounded accent-[#121212]" />
+            <span>Status Akun Aktif (Diizinkan Login)</span>
+          </label>
+        </form>
+      `;
+
+      const footer = `
+        <button type="button" id="btn-cancel-u" class="px-4 py-2.5 rounded-full text-xs font-semibold text-gray-600 bg-white border border-gray-200">Batal</button>
+        <button type="submit" form="form-user" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#121212] text-white">Simpan Akun</button>
+      `;
+
+      openModal(existing ? 'Edit Akun Staf' : 'Tambah Akun Staf Baru', body, footer);
+      document.getElementById('btn-cancel-u').onclick = closeModal;
+      document.getElementById('form-user').onsubmit = async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const payload = {
+          nama_lengkap: fd.get('nama_lengkap').trim(),
+          username: fd.get('username').trim(),
+          password: fd.get('password'),
+          role: fd.get('role'),
+          jabatan: fd.get('jabatan').trim(),
+          unit_kerja: fd.get('unit_kerja').trim(),
+          status_aktif: fd.get('status_aktif') === 'on'
+        };
+        try {
+          if (existing) {
+            await dbUpdate('users', existing.id, payload);
+            showToast('Akun staf diperbarui.');
+          } else {
+            await dbCreate('users', payload);
+            showToast('Akun staf baru berhasil dibuat.');
+          }
+          closeModal();
+        } catch (err) {
+          showToast('Gagal menyimpan akun: ' + err.message, 'error');
+        }
+      };
+    }
+
+    function openKlasifikasiModal(editId = null) {
+      const existing = editId ? state.klasifikasi.find((k) => k.id === editId) : null;
+      const body = `
+        <form id="form-klasifikasi" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Kode *</label>
+              <input name="kode" required value="${esc(existing ? existing.kode : '')}" placeholder="005" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm font-mono outline-none" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Klasifikasi *</label>
+              <input name="nama" required value="${esc(existing ? existing.nama : '')}" placeholder="Undangan Resmi" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Keterangan</label>
+            <textarea name="keterangan" rows="2" class="w-full px-4 py-2.5 rounded-2xl bg-[#F6F8FB] text-sm outline-none">${esc(existing ? existing.keterangan : '')}</textarea>
+          </div>
+        </form>
+      `;
+      const footer = `
+        <button type="button" id="btn-cancel-k" class="px-4 py-2.5 rounded-full text-xs font-semibold text-gray-600 bg-white border border-gray-200">Batal</button>
+        <button type="submit" form="form-klasifikasi" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#121212] text-white">Simpan Klasifikasi</button>
+      `;
+      openModal(existing ? 'Edit Kode Klasifikasi' : 'Tambah Kode Klasifikasi', body, footer);
+      document.getElementById('btn-cancel-k').onclick = closeModal;
+      document.getElementById('form-klasifikasi').onsubmit = async (e) => {
+        e.preventDefault();
+        const payload = Object.fromEntries(new FormData(e.target).entries());
+        try {
+          if (existing) {
+            await dbUpdate('klasifikasi', existing.id, payload);
+            showToast('Kode klasifikasi diperbarui.');
+          } else {
+            await dbCreate('klasifikasi', payload);
+            showToast('Kode klasifikasi ditambahkan.');
+          }
+          closeModal();
+        } catch (err) {
+          showToast('Gagal menyimpan: ' + err.message, 'error');
+        }
+      };
+    }
+
+    // =========================================================================
+    // 13. FITUR CETAK LEMBAR DISPOSISI & REKAP PERSURATAN
+    // =========================================================================
+    function printLembarDisposisi(suratMasukId) {
+      const s = state.surat_masuk.find((x) => x.id === suratMasukId);
+      if (!s) return;
+      const dispos = state.disposisi.filter((d) => d.surat_masuk_id === suratMasukId);
+      const area = document.getElementById('print-area');
+      area.innerHTML = `
+        <div style="font-family: Arial, sans-serif; color: #111; max-width: 780px; margin: 0 auto;">
+          <div style="text-align: center; border-bottom: 3px double #111; padding-bottom: 12px; margin-bottom: 18px;">
+            <h2 style="margin: 0; font-size: 18px; text-transform: uppercase;">${esc(state.instansi.nama_instansi)}</h2>
+            <p style="margin: 4px 0 0; font-size: 12px;">${esc(state.instansi.alamat)}</p>
+          </div>
+          <h3 style="text-align: center; margin: 0 0 16px; font-size: 15px; text-decoration: underline;">LEMBAR DISPOSISI SURAT MASUK</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px;">
+            <tr>
+              <td style="border: 1px solid #333; padding: 8px; width: 50%;"><strong>Surat Dari:</strong><br/>${esc(s.pengirim)}</td>
+              <td style="border: 1px solid #333; padding: 8px; width: 50%;"><strong>Diterima Tanggal:</strong> ${formatDateIndo(s.tanggal_terima)}<br/><strong>No. Agenda:</strong> ${esc(s.nomor_agenda)}</td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #333; padding: 8px;"><strong>Nomor Surat:</strong> ${esc(s.nomor_surat)}<br/><strong>Tanggal Surat:</strong> ${formatDateIndo(s.tanggal_surat)}</td>
+              <td style="border: 1px solid #333; padding: 8px;"><strong>Sifat:</strong> ${esc(s.sifat_surat)}<br/><strong>Kode Klasifikasi:</strong> ${esc(s.kode_klasifikasi || '-')}</td>
+            </tr>
+            <tr>
+              <td colspan="2" style="border: 1px solid #333; padding: 10px;"><strong>Perihal:</strong><br/>${esc(s.perihal)}<br/><br/><em>${esc(s.ringkasan || '')}</em></td>
+            </tr>
+          </table>
+          <h4 style="font-size: 13px; margin: 12px 0 8px;">Instruksi / Disposisi:</h4>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+              <tr style="background: #f3f4f6;">
+                <th style="border: 1px solid #333; padding: 7px; text-align: left;">Diteruskan Kepada</th>
+                <th style="border: 1px solid #333; padding: 7px; text-align: left;">Isi Instruksi</th>
+                <th style="border: 1px solid #333; padding: 7px; text-align: left;">Batas Waktu &amp; Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${dispos.length === 0 ? `<tr><td colspan="3" style="border: 1px solid #333; padding: 16px; text-align: center;">(Belum ada instruksi tertulis)</td></tr>` :
+                dispos.map((d) => `
+                  <tr>
+                    <td style="border: 1px solid #333; padding: 8px;">${esc(d.tujuan_nama)}</td>
+                    <td style="border: 1px solid #333; padding: 8px;">${esc(d.instruksi)}${d.catatan_tindak_lanjut ? `<br/><strong>Tindak Lanjut:</strong> ${esc(d.catatan_tindak_lanjut)}` : ''}</td>
+                    <td style="border: 1px solid #333; padding: 8px;">${formatDateIndo(d.batas_waktu)}<br/>Status: ${esc(d.status)}</td>
+                  </tr>
+                `).join('')
+              }
+            </tbody>
+          </table>
+        </div>
+      `;
+      window.print();
+    }
+
+    function printRekapPersuratan() {
+      const masuk = filterByGlobalMonth(state.surat_masuk, 'tanggal_terima');
+      const keluar = filterByGlobalMonth(state.surat_keluar, 'tanggal_surat');
+      const area = document.getElementById('print-area');
+      area.innerHTML = `
+        <div style="font-family: Arial, sans-serif; color: #111;">
+          <div style="text-align: center; border-bottom: 3px double #111; padding-bottom: 10px; margin-bottom: 16px;">
+            <h2 style="margin: 0; font-size: 17px; text-transform: uppercase;">${esc(state.instansi.nama_instansi)}</h2>
+            <p style="margin: 4px 0 0; font-size: 12px;">${esc(state.instansi.alamat)}</p>
+          </div>
+          <h3 style="text-align: center; margin: 0 0 14px; font-size: 14px;">REKAPITULASI SURAT MASUK &amp; SURAT KELUAR ${state.globalMonth ? '(' + state.globalMonth + ')' : '(SEMUA PERIODE)'}</h3>
+
+          <h4 style="font-size: 13px; margin: 12px 0 6px;">A. Daftar Surat Masuk (${masuk.length})</h4>
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 16px;">
+            <thead><tr style="background:#f3f4f6;"><th style="border:1px solid #333;padding:6px;">Agenda</th><th style="border:1px solid #333;padding:6px;">No. Surat</th><th style="border:1px solid #333;padding:6px;">Pengirim</th><th style="border:1px solid #333;padding:6px;">Perihal</th><th style="border:1px solid #333;padding:6px;">Tgl Terima</th></tr></thead>
+            <tbody>
+              ${masuk.length === 0 ? '<tr><td colspan="5" style="border:1px solid #333;padding:8px;text-align:center;">Tidak ada data</td></tr>' : masuk.map((s) => `
+                <tr><td style="border:1px solid #333;padding:6px;">${esc(s.nomor_agenda)}</td><td style="border:1px solid #333;padding:6px;">${esc(s.nomor_surat)}</td><td style="border:1px solid #333;padding:6px;">${esc(s.pengirim)}</td><td style="border:1px solid #333;padding:6px;">${esc(s.perihal)}</td><td style="border:1px solid #333;padding:6px;">${formatDateIndo(s.tanggal_terima)}</td></tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <h4 style="font-size: 13px; margin: 12px 0 6px;">B. Daftar Surat Keluar (${keluar.length})</h4>
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+            <thead><tr style="background:#f3f4f6;"><th style="border:1px solid #333;padding:6px;">No. Surat</th><th style="border:1px solid #333;padding:6px;">Tujuan</th><th style="border:1px solid #333;padding:6px;">Perihal</th><th style="border:1px solid #333;padding:6px;">Tanggal</th><th style="border:1px solid #333;padding:6px;">Status</th></tr></thead>
+            <tbody>
+              ${keluar.length === 0 ? '<tr><td colspan="5" style="border:1px solid #333;padding:8px;text-align:center;">Tidak ada data</td></tr>' : keluar.map((s) => `
+                <tr><td style="border:1px solid #333;padding:6px;">${esc(s.nomor_surat)}</td><td style="border:1px solid #333;padding:6px;">${esc(s.tujuan)}</td><td style="border:1px solid #333;padding:6px;">${esc(s.perihal)}</td><td style="border:1px solid #333;padding:6px;">${formatDateIndo(s.tanggal_surat)}</td><td style="border:1px solid #333;padding:6px;">${esc(s.status)}</td></tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      window.print();
+    }
+
+    // =========================================================================
+    // 14. EVENT LISTENERS GLOBAL & BOOTSTRAP
+    // =========================================================================
+    function bindGlobalEvents() {
+      document.getElementById('btn-header-logout').onclick = handleLogout;
+      document.getElementById('sidebar-btn-logout').onclick = handleLogout;
+      document.getElementById('btn-back-dash').onclick = () => navigateTo('dashboard');
+
+      // Popover Notifikasi
+      const notifBtn = document.getElementById('btn-notif-trigger');
+      const notifMenu = document.getElementById('notif-dropdown');
+      notifBtn.onclick = (e) => {
+        e.stopPropagation();
+        notifMenu.classList.toggle('hidden');
+      };
+      document.addEventListener('click', (e) => {
+        if (!notifMenu.contains(e.target) && !notifBtn.contains(e.target)) {
+          notifMenu.classList.add('hidden');
+        }
+      });
+
+      // Global Quick Search Modal
+      document.getElementById('btn-global-search').onclick = () => {
+        openModal('Pencarian Cepat Arsip', `
+          <div class="space-y-3">
+            <input id="quick-search-input" type="text" placeholder="Ketik nomor surat, pengirim, tujuan, atau perihal..."
+              class="w-full px-4 py-3 rounded-2xl bg-[#F6F8FB] text-sm outline-none focus:bg-white focus:ring-2 focus:ring-gray-900/15" />
+            <div id="quick-search-results" class="space-y-2 max-h-72 overflow-y-auto custom-scroll">
+              <p class="text-xs text-gray-400 text-center py-6">Ketik kata kunci untuk mencari di Surat Masuk &amp; Surat Keluar.</p>
+            </div>
+          </div>
+        `);
+        const inp = document.getElementById('quick-search-input');
+        const res = document.getElementById('quick-search-results');
+        inp.focus();
+        inp.oninput = () => {
+          const q = inp.value.trim().toLowerCase();
+          if (!q) {
+            res.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">Ketik kata kunci untuk mencari di Surat Masuk &amp; Surat Keluar.</p>`;
+            return;
+          }
+          const matches = [
+            ...state.surat_masuk.filter((s) => [s.nomor_surat, s.pengirim, s.perihal].some((v) => String(v || '').toLowerCase().includes(q))).map((s) => ({ ...s, _t: 'masuk' })),
+            ...state.surat_keluar.filter((s) => [s.nomor_surat, s.tujuan, s.perihal].some((v) => String(v || '').toLowerCase().includes(q))).map((s) => ({ ...s, _t: 'keluar' }))
+          ];
+          if (matches.length === 0) {
+            res.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">Tidak ditemukan arsip untuk "${esc(q)}".</p>`;
+            return;
+          }
+          res.innerHTML = matches.slice(0, 8).map((m) => `
+            <div data-qs-type="${m._t}" data-qs-id="${m.id}" class="p-3 rounded-2xl bg-[#F6F8FB] hover:bg-gray-100 cursor-pointer flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="text-xs font-bold text-gray-900 truncate">${esc(m.perihal)}</div>
+                <div class="text-[11px] text-gray-500 truncate">${esc(m.nomor_surat)} • ${esc(m._t === 'masuk' ? m.pengirim : m.tujuan)}</div>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${m._t === 'masuk' ? 'bg-[#121212] text-[#D2FA3E]' : 'bg-[#D2FA3E] text-[#121212]'}">${m._t === 'masuk' ? 'Masuk' : 'Keluar'}</span>
+            </div>
+          `).join('');
+          res.querySelectorAll('[data-qs-id]').forEach((item) => {
+            item.onclick = () => {
+              const t = item.getAttribute('data-qs-type');
+              const id = item.getAttribute('data-qs-id');
+              if (t === 'masuk') openDetailSuratMasuk(id);
+              else openDetailSuratKeluar(id);
+            };
+          });
+        };
+      };
+
+      // Filter Bulan Global
+      const monthInput = document.getElementById('global-month-filter');
+      const resetMonthBtn = document.getElementById('btn-reset-month');
+      monthInput.onchange = (e) => {
+        state.globalMonth = e.target.value;
+        if (state.globalMonth) resetMonthBtn.classList.remove('hidden');
+        else resetMonthBtn.classList.add('hidden');
+        renderApp();
+      };
+      resetMonthBtn.onclick = () => {
+        state.globalMonth = '';
+        monthInput.value = '';
+        resetMonthBtn.classList.add('hidden');
+        renderApp();
+      };
+
+      // Tutup modal jika klik backdrop
+      document.getElementById('modal-container').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-container') closeModal();
+      });
+    }
+
+    // BOOTSTRAP APLIKASI
+    (async function bootstrap() {
+      setupLoginUI();
+      bindGlobalEvents();
+
+      if (IS_PREVIEW) {
+        loadPreviewDummyData();
+      } else {
+        await initFirebaseProduction();
+      }
+      refreshIcons();
+    })();
+  </script>
+</body>
+</html>
